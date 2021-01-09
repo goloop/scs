@@ -16,6 +16,7 @@ func getChunks(s string) []string {
 	)
 }
 
+// The toUnited converts a string to a format similar to camel or PascaCase.
 func toUnited(s string, firstWordIsLower bool) string {
 	var result string
 
@@ -36,6 +37,7 @@ func toUnited(s string, firstWordIsLower bool) string {
 	return result
 }
 
+// The toSeparate converts a string to a format similar to snake or kebab-case.
 func toSeparate(s, delimiter string) string {
 	var result string
 

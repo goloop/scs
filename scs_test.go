@@ -46,7 +46,8 @@ func TestNew(t *testing.T) {
 	}
 
 	// Pascal
-	pascal, err := New(Pascal, test.example)
+	pascal, err := New(Pascal)
+	pascal.Eat(test.example)
 	if err != nil {
 		t.Error(err)
 	}
@@ -68,6 +69,15 @@ func TestNew(t *testing.T) {
 	}
 }
 
+// TestObjIsValid tests IsValid method of the object.
+func TestObjIsValid(t *testing.T) {
+	obj, _ := New(0, "hello world")
+	if obj.IsValid() {
+		t.Error("test for IsValid is failed, " +
+			"expected false but true")
+	}
+}
+
 // TestObjToCamel tests ToCamel method of the object.
 func TestObjToCamel(t *testing.T) {
 	var test = struct {
@@ -81,7 +91,7 @@ func TestObjToCamel(t *testing.T) {
 	}
 
 	pascal, _ := New(Pascal, test.example)
-	camel, _ := pascal.ToCamel()
+	camel := pascal.ToCamel()
 	if r := camel.Value(); r != test.camel {
 		t.Errorf("test for Pascal To Camel is failed, "+
 			"expected %s but %s", test.camel, r)
@@ -101,7 +111,7 @@ func TestObjToKebab(t *testing.T) {
 	}
 
 	snake, _ := New(Snake, test.example)
-	kebab, _ := snake.ToKebab()
+	kebab := snake.ToKebab()
 	if r := kebab.Value(); r != test.kebab {
 		t.Errorf("test for Snake To Kebab is failed, "+
 			"expected %s but %s", test.kebab, r)
@@ -121,7 +131,7 @@ func TestObjToPascal(t *testing.T) {
 	}
 
 	camel, _ := New(Camel, test.example)
-	pascal, _ := camel.ToPascal()
+	pascal := camel.ToPascal()
 	if r := pascal.Value(); r != test.pascal {
 		t.Errorf("test for Camle To Pascal is failed, "+
 			"expected %s but %s", test.pascal, r)
@@ -141,7 +151,7 @@ func TestObjToSnake(t *testing.T) {
 	}
 
 	kebab, _ := New(Kebab, test.example)
-	snake, _ := kebab.ToSnake()
+	snake := kebab.ToSnake()
 	if r := snake.Value(); r != test.snake {
 		t.Errorf("test for Kebab To Snake is failed, "+
 			"expected %s but %s", test.snake, r)

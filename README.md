@@ -3,7 +3,7 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/goloop/scs)](https://goreportcard.com/report/github.com/goloop/scs) [![License](https://img.shields.io/badge/license-BSD-blue)](https://github.com/goloop/scs/blob/master/LICENSE) [![License](https://img.shields.io/badge/godoc-YES-green)](https://godoc.org/github.com/goloop/scs)
 
-*Version: 0.2.0*
+*Version: 0.3.0*
 
 
 # scs
@@ -34,21 +34,21 @@ Example:
 
         // Simple text
         s = "hello world"
-        scs.StrToCamel(s)  // helloWorld <nil>
-        scs.StrToPascal(s) // HelloWorld <nil>
-        scs.StrToSnake(s)  // hello_world <nil>
-        scs.StrToKebab(s)  // hello-world <nil>
+        scs.StrToCamel(s)  // helloWorld
+        scs.StrToPascal(s) // HelloWorld
+        scs.StrToSnake(s)  // hello_world
+        scs.StrToKebab(s)  // hello-world
 
         // Text with acronyms
         s = "http to https"
-        scs.StrToCamel(s)  // httpToHTTPS <nil>
-        scs.StrToPascal(s) // HTTPToHTTPS <nil>
-        scs.StrToSnake(s)  // http_to_https <nil>
-        scs.StrToKebab(s)  // http-to-https <nil>
+        scs.StrToCamel(s)  // httpToHTTPS
+        scs.StrToPascal(s) // HTTPToHTTPS
+        scs.StrToSnake(s)  // http_to_https
+        scs.StrToKebab(s)  // http-to-https
 
         // Converting
         s = "http to https"
-        camel, _ := scs.StrToCamel(s)         // httpToHTTPS <nil>
+        camel := scs.StrToCamel(s)            // httpToHTTPS
         pascal, _ := scs.CamelToPascal(camel) // HTTPToHTTPS <nil>
         kebab, _ := scs.PascalToKebab(pascal) // http-to-https <nil>
         snake, _ := scs.KebabToSnake(kebab)   // http_to_https <nil>
@@ -63,6 +63,10 @@ Example:
 
 ### Style objects
 
+A safer way. Since each object knows what type it is and knows which conversion
+rules to use. This removes the need to return a second parameter as err when
+converting styles.
+
 Example:
 
     package main
@@ -76,12 +80,12 @@ Example:
         s = "hello world"
         snake, _ := scs.New(scs.Snake) // scs.New(scs.Snake, s)
 
-        snake.Eat(s)    // hello_world <nil>
+        snake.Eat(s)    // hello_world
         snake.IsCamel() // false
         snake.IsSnake() // true
         snake.Value()   // hello_world
 
-        camel, _ := snake.ToCamel()
+        camel := snake.ToCamel()
         camel.IsSnake() // false
         camel.IsCamel() // true
         camel.Value()   // helloWorld
@@ -91,7 +95,7 @@ Example:
         pascal, _ := scs.New(scs.Pascal, s)
         pascal.Value() // HTTPToHTTPS
 
-        kebab, _ := pascal.ToKebab()
+        kebab := pascal.ToKebab()
         kebab.Value() // http-to-https
     }
 
@@ -337,25 +341,25 @@ IsValid returns true if Object is valid.
 
 #### func (*Object) ToCamel
 
-    func (o *Object) ToCamel() (*Object, error)
+    func (o *Object) ToCamel() *Object
 
 ToCamel converts an object to Camel Type Object and returns a pointer to it.
 
 #### func (*Object) ToKebab
 
-    func (o *Object) ToKebab() (*Object, error)
+    func (o *Object) ToKebab() *Object
 
 ToKebab converts an object to Kebab Type Object and returns a pointer to it.
 
 #### func (*Object) ToPascal
 
-    func (o *Object) ToPascal() (*Object, error)
+    func (o *Object) ToPascal() *Object
 
 ToPascal converts an object to Pascal Type Object and returns a pointer to it.
 
 #### func (*Object) ToSnake
 
-    func (o *Object) ToSnake() (*Object, error)
+    func (o *Object) ToSnake() *Object
 
 ToSnake converts an object to Snake Type Object and returns a pointer to it.
 

@@ -32,7 +32,7 @@ type Object struct {
 	value string
 
 	// the do is method to convert the raw string to the specified style.
-	do func(string) string
+	do func(string) (string, error)
 }
 
 // New returns a pointer to a string case style object. The style defines
@@ -42,38 +42,49 @@ func New(style CaseStyle, ss ...string) (*Object, error) {
 
 	switch style {
 	case Camel:
-		obj.do = ToCamel
+		obj.do = StrToCamel
 	case Kebab:
-		obj.do = ToKebab
+		obj.do = StrToKebab
 	case Pascal:
-		obj.do = ToPascal
+		obj.do = StrToPascal
 	case Snake:
-		obj.do = ToSnake
+		obj.do = StrToSnake
 	default:
+		obj.do = func(s string) (string, error) { return s, nil }
 		return &obj, fmt.Errorf("incorrect case style")
 	}
 
-	obj.value = obj.do(strings.Join(ss, " "))
-	return &obj, nil
+	value, err := obj.do(strings.Join(ss, " "))
+	obj.value = value
+	return &obj, err
 }
 
 // IsCamel returns true if object contains camelCase value.
-func (o *Object) IsCamel() bool { return o.style == Camel }
+func (o *Object) IsCamel() bool {
+	return o.style == Camel
+}
 
 // IsKebab returns true if object contains kebab-case value.
-func (o *Object) IsKebab() bool { return o.style == Kebab }
+func (o *Object) IsKebab() bool {
+	return o.style == Kebab
+}
 
 // IsPascal returns true if object contains PascalCase value.
-func (o *Object) IsPascal() bool { return o.style == Pascal }
+func (o *Object) IsPascal() bool {
+	return o.style == Pascal
+}
 
 // IsSnake returns true if object contains snake-case value.
-func (o *Object) IsSnake() bool { return o.style == Snake }
+func (o *Object) IsSnake() bool {
+	return o.style == Snake
+}
 
 // Eat converts a string to the specified style and stores
 // it as an object value.
-func (o *Object) Eat(s string) string {
-	o.value = o.do(s)
-	return o.value
+func (o *Object) Eat(s string) (string, error) {
+	value, err := o.do(s)
+	o.value = value
+	return o.value, err
 }
 
 // Value returns value of the object.
@@ -83,76 +94,88 @@ func (o *Object) Value() string {
 
 // ToCamel converts an object to Camel Type Object
 // and returns a pointer to it.
-func (o *Object) ToCamel() *Object {
-	var obj = Object{style: Camel, do: ToCamel}
+func (o *Object) ToCamel() (*Object, error) {
+	var (
+		err error
+		obj = Object{style: Camel, do: StrToCamel}
+	)
 
 	switch o.style {
 	case Camel:
 		obj.value = o.value
 	case Kebab:
-		obj.value = KebabToCamel(o.value)
+		obj.value, err = KebabToCamel(o.value)
 	case Pascal:
-		obj.value = PascalToCamel(o.value)
+		obj.value, err = PascalToCamel(o.value)
 	case Snake:
-		obj.value = SnakeToCamel(o.value)
+		obj.value, err = SnakeToCamel(o.value)
 	}
 
-	return &obj
+	return &obj, err
 }
 
 // ToKebab converts an object to Kebab Type Object
 // and returns a pointer to it.
-func (o *Object) ToKebab() *Object {
-	var obj = Object{style: Kebab, do: ToKebab}
+func (o *Object) ToKebab() (*Object, error) {
+	var (
+		err error
+		obj = Object{style: Kebab, do: StrToKebab}
+	)
 
 	switch o.style {
 	case Camel:
-		obj.value = CamelToKebab(o.value)
+		obj.value, err = CamelToKebab(o.value)
 	case Kebab:
 		obj.value = o.value
 	case Pascal:
-		obj.value = PascalToKebab(o.value)
+		obj.value, err = PascalToKebab(o.value)
 	case Snake:
-		obj.value = SnakeToKebab(o.value)
+		obj.value, err = SnakeToKebab(o.value)
 	}
 
-	return &obj
+	return &obj, err
 }
 
 // ToPascal converts an object to Pascal Type Object
 // and returns a pointer to it.
-func (o *Object) ToPascal() *Object {
-	var obj = Object{style: Pascal, do: ToPascal}
+func (o *Object) ToPascal() (*Object, error) {
+	var (
+		err error
+		obj = Object{style: Pascal, do: StrToPascal}
+	)
 
 	switch o.style {
 	case Camel:
-		obj.value = CamelToPascal(o.value)
+		obj.value, err = CamelToPascal(o.value)
 	case Kebab:
-		obj.value = KebabToPascal(o.value)
+		obj.value, err = KebabToPascal(o.value)
 	case Pascal:
 		obj.value = o.value
 	case Snake:
-		obj.value = SnakeToPascal(o.value)
+		obj.value, err = SnakeToPascal(o.value)
 	}
 
-	return &obj
+	return &obj, err
 }
 
 // ToSnake converts an object to Snake Type Object
 // and returns a pointer to it.
-func (o *Object) ToSnake() *Object {
-	var obj = Object{style: Snake, do: ToSnake}
+func (o *Object) ToSnake() (*Object, error) {
+	var (
+		err error
+		obj = Object{style: Snake, do: StrToSnake}
+	)
 
 	switch o.style {
 	case Camel:
-		obj.value = CamelToSnake(o.value)
+		obj.value, err = CamelToSnake(o.value)
 	case Kebab:
-		obj.value = KebabToSnake(o.value)
+		obj.value, err = KebabToSnake(o.value)
 	case Pascal:
-		obj.value = PascalToSnake(o.value)
+		obj.value, err = PascalToSnake(o.value)
 	case Snake:
 		obj.value = o.value
 	}
 
-	return &obj
+	return &obj, err
 }

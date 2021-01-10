@@ -2,6 +2,39 @@ package scs
 
 import "testing"
 
+// TestStrIsKebab tests StrIsKebab function.
+func TestStrIsKebab(t *testing.T) {
+	var tests = []struct {
+		value  string
+		result bool
+	}{
+		// Simple examples
+		{"One", false},
+		{"one", true},
+		{"oneTwoThree", false},
+		{"one-two-three", true},
+		{"OneTwoThree", false},
+		{"ice9", true},
+		{"Ice9", false},
+
+		// Examples with acronyms
+		{"is-www-connection", true},
+		{"IsWWWConnection", false},
+		{"HTTPToHTTPS", false},
+		{"isHTTPOrHTTPS", false},
+		{"HTTPToHTTPS", false},
+		{"http_to_https", false},
+		{"http-to-https", true},
+	}
+
+	for i, s := range tests {
+		if r := StrIsKebab(s.value); s.result != r {
+			t.Errorf("test for %d is failed, "+
+				"expected %t but %t", i, s.result, r)
+		}
+	}
+}
+
 // TestToKebab tests CamelToKebab function.
 func TestToKebab(t *testing.T) {
 	var tests = []struct {
@@ -20,7 +53,7 @@ func TestToKebab(t *testing.T) {
 	}
 
 	for i, s := range tests {
-		if r := ToKebab(s.value); s.result != r {
+		if r, _ := StrToKebab(s.value); s.result != r {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}
@@ -45,7 +78,7 @@ func TestKebabToCamel(t *testing.T) {
 	}
 
 	for i, s := range tests {
-		if r := KebabToCamel(s.value); s.result != r {
+		if r, _ := KebabToCamel(s.value); s.result != r {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}
@@ -70,7 +103,7 @@ func TestKebabToSnake(t *testing.T) {
 	}
 
 	for i, s := range tests {
-		if r := KebabToSnake(s.value); s.result != r {
+		if r, _ := KebabToSnake(s.value); s.result != r {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}
@@ -95,7 +128,7 @@ func TestKebabToPascal(t *testing.T) {
 	}
 
 	for i, s := range tests {
-		if r := KebabToPascal(s.value); s.result != r {
+		if r, _ := KebabToPascal(s.value); s.result != r {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}

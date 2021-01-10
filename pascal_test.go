@@ -2,8 +2,39 @@ package scs
 
 import "testing"
 
-// TestToPascal tests ToPascal function.
-func TestToPascal(t *testing.T) {
+// TestStrIsPascal tests StrIsPascal function.
+func TestStrIsPascal(t *testing.T) {
+	var tests = []struct {
+		value  string
+		result bool
+	}{
+		// Simple examples
+		{"One", true},
+		{"oneTwoThree", false},
+		{"OneTwoThree", true},
+		{"ice9", false},
+		{"Ice9", true},
+
+		// Examples with acronyms
+		{"isWWWConnection", false},
+		{"IsWWWConnection", true},
+		{"HTTPToHTTPS", true},
+		{"isHTTPOrHTTPS", false},
+		{"HTTPToHTTPS", true},
+		{"Http_To_HTTPS", false},
+		{"Http-To-HTTPS", false},
+	}
+
+	for i, s := range tests {
+		if r := StrIsPascal(s.value); s.result != r {
+			t.Errorf("test for %d is failed, "+
+				"expected %t but %t", i, s.result, r)
+		}
+	}
+}
+
+// TestStrToPascal tests StrToPascal function.
+func TestStrToPascal(t *testing.T) {
 	var tests = []struct {
 		value  string
 		result string
@@ -20,7 +51,7 @@ func TestToPascal(t *testing.T) {
 	}
 
 	for i, s := range tests {
-		if r := ToPascal(s.value); s.result != r {
+		if r, _ := StrToPascal(s.value); s.result != r {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}
@@ -45,7 +76,7 @@ func TestPascalToKebab(t *testing.T) {
 	}
 
 	for i, s := range tests {
-		if r := PascalToKebab(s.value); s.result != r {
+		if r, _ := PascalToKebab(s.value); s.result != r {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}
@@ -70,7 +101,7 @@ func TestPascalToCamel(t *testing.T) {
 	}
 
 	for i, s := range tests {
-		if r := PascalToCamel(s.value); s.result != r {
+		if r, _ := PascalToCamel(s.value); s.result != r {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}
@@ -95,7 +126,7 @@ func TestPascalToSnake(t *testing.T) {
 	}
 
 	for i, s := range tests {
-		if r := PascalToSnake(s.value); s.result != r {
+		if r, _ := PascalToSnake(s.value); s.result != r {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}

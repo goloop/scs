@@ -2,8 +2,41 @@ package scs
 
 import "testing"
 
-// TestToSnake tests ToSnake function.
-func TestToSnake(t *testing.T) {
+// TestStrIsSnake tests StrIsSnake function.
+func TestStrIsSnake(t *testing.T) {
+	var tests = []struct {
+		value  string
+		result bool
+	}{
+		// Simple examples
+		{"One", false},
+		{"one", true},
+		{"oneTwoThree", false},
+		{"one_two_three", true},
+		{"OneTwoThree", false},
+		{"ice9", true},
+		{"Ice9", false},
+
+		// Examples with acronyms
+		{"is_www_connection", true},
+		{"IsWWWConnection", false},
+		{"HTTPToHTTPS", false},
+		{"isHTTPOrHTTPS", false},
+		{"HTTPToHTTPS", false},
+		{"http_to_https", true},
+		{"http-to-https", false},
+	}
+
+	for i, s := range tests {
+		if r := StrIsSnake(s.value); s.result != r {
+			t.Errorf("test for %d is failed, "+
+				"expected %t but %t", i, s.result, r)
+		}
+	}
+}
+
+// TestStrToSnake tests StrToSnake function.
+func TestStrToSnake(t *testing.T) {
 	var tests = []struct {
 		value  string
 		result string
@@ -20,7 +53,7 @@ func TestToSnake(t *testing.T) {
 	}
 
 	for i, s := range tests {
-		if r := ToSnake(s.value); s.result != r {
+		if r, _ := StrToSnake(s.value); s.result != r {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}
@@ -45,7 +78,7 @@ func TestSnakeToCamel(t *testing.T) {
 	}
 
 	for i, s := range tests {
-		if r := SnakeToCamel(s.value); s.result != r {
+		if r, _ := SnakeToCamel(s.value); s.result != r {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}
@@ -70,7 +103,7 @@ func TestSnakeToKebab(t *testing.T) {
 	}
 
 	for i, s := range tests {
-		if r := SnakeToKebab(s.value); s.result != r {
+		if r, _ := SnakeToKebab(s.value); s.result != r {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}
@@ -95,7 +128,7 @@ func TestSnakeToPascal(t *testing.T) {
 	}
 
 	for i, s := range tests {
-		if r := SnakeToPascal(s.value); s.result != r {
+		if r, _ := SnakeToPascal(s.value); s.result != r {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}

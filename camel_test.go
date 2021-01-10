@@ -2,8 +2,39 @@ package scs
 
 import "testing"
 
-// TestToCamel tests ToCamel function.
-func TestToCamel(t *testing.T) {
+// TestStrIsCamel tests StrIsCamel function.
+func TestStrIsCamel(t *testing.T) {
+	var tests = []struct {
+		value  string
+		result bool
+	}{
+		// Simple examples
+		{"One", false},
+		{"oneTwoThree", true},
+		{"OneTwoThree", false},
+		{"ice9", true},
+		{"Ice9", false},
+
+		// Examples with acronyms
+		{"isWWWConnection", true},
+		{"httpToHTTPS", true},
+		{"isHTTPOrHTTPS", true},
+		{"IsHTTPOrHTTPS", false},
+		{"HTTPToHTTPS", false},
+		{"http_To_HTTPS", false},
+		{"http-To-HTTPS", false},
+	}
+
+	for i, s := range tests {
+		if r := StrIsCamel(s.value); s.result != r {
+			t.Errorf("test for %d is failed, "+
+				"expected %t but %t", i, s.result, r)
+		}
+	}
+}
+
+// TestStrToCamel tests StrToCamel function.
+func TestStrToCamel(t *testing.T) {
 	var tests = []struct {
 		value  string
 		result string
@@ -20,7 +51,7 @@ func TestToCamel(t *testing.T) {
 	}
 
 	for i, s := range tests {
-		if r := ToCamel(s.value); s.result != r {
+		if r, _ := StrToCamel(s.value); s.result != r {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}
@@ -45,7 +76,7 @@ func TestCamelToKebab(t *testing.T) {
 	}
 
 	for i, s := range tests {
-		if r := CamelToKebab(s.value); s.result != r {
+		if r, _ := CamelToKebab(s.value); s.result != r {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}
@@ -70,7 +101,7 @@ func TestCamelToPascal(t *testing.T) {
 	}
 
 	for i, s := range tests {
-		if r := CamelToPascal(s.value); s.result != r {
+		if r, _ := CamelToPascal(s.value); s.result != r {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}
@@ -95,7 +126,7 @@ func TestCamelToSnake(t *testing.T) {
 	}
 
 	for i, s := range tests {
-		if r := CamelToSnake(s.value); s.result != r {
+		if r, _ := CamelToSnake(s.value); s.result != r {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}

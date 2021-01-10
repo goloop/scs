@@ -51,7 +51,32 @@ func TestStrToPascal(t *testing.T) {
 	}
 
 	for i, s := range tests {
-		if r, _ := StrToPascal(s.value); s.result != r {
+		if r := StrToPascal(s.value); s.result != r {
+			t.Errorf("test for %d is failed, "+
+				"expected %s but %s", i, s.result, r)
+		}
+	}
+}
+
+// TestToPascal tests ToPascal function.
+func TestToPascal(t *testing.T) {
+	var tests = []struct {
+		value  string
+		result string
+	}{
+		// Simple examples
+		{"One", "One"},
+		{" One two Three ", "OneTwoThree"},
+		{"Ice 9", "Ice9"},
+
+		// Examples with acronyms
+		{"isWWWConnection", "IsWWWConnection"},
+		{"http-to-https", "HTTPToHTTPS"},
+		{"is_http_or_https", "IsHTTPOrHTTPS"},
+	}
+
+	for i, s := range tests {
+		if r := ToPascal(s.value); s.result != r {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}

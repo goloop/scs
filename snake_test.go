@@ -53,7 +53,32 @@ func TestStrToSnake(t *testing.T) {
 	}
 
 	for i, s := range tests {
-		if r, _ := StrToSnake(s.value); s.result != r {
+		if r := StrToSnake(s.value); s.result != r {
+			t.Errorf("test for %d is failed, "+
+				"expected %s but %s", i, s.result, r)
+		}
+	}
+}
+
+// TestToSnake tests ToSnake function.
+func TestToSnake(t *testing.T) {
+	var tests = []struct {
+		value  string
+		result string
+	}{
+		// Simple examples
+		{"One", "one"},
+		{" One two Three ", "one_two_three"},
+		{"Ice 9", "ice_9"},
+
+		// Examples with acronyms
+		{"isWWWConnection", "is_www_connection"},
+		{"HTTPToHTTPS", "http_to_https"},
+		{"is-http-or-https", "is_http_or_https"},
+	}
+
+	for i, s := range tests {
+		if r := ToSnake(s.value); s.result != r {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}

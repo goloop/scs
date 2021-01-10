@@ -51,7 +51,32 @@ func TestStrToCamel(t *testing.T) {
 	}
 
 	for i, s := range tests {
-		if r, _ := StrToCamel(s.value); s.result != r {
+		if r := StrToCamel(s.value); s.result != r {
+			t.Errorf("test for %d is failed, "+
+				"expected %s but %s", i, s.result, r)
+		}
+	}
+}
+
+// TestToCamel tests ToCamel function.
+func TestToCamel(t *testing.T) {
+	var tests = []struct {
+		value  string
+		result string
+	}{
+		// Simple examples
+		{"One", "one"},
+		{" One two Three ", "oneTwoThree"},
+		{"Ice 9", "ice9"},
+
+		// Examples with acronyms
+		{"IsWWWConnection", "isWWWConnection"},
+		{"http-to-https", "httpToHTTPS"},
+		{"is_http_or_https", "isHTTPOrHTTPS"},
+	}
+
+	for i, s := range tests {
+		if r := ToCamel(s.value); s.result != r {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}

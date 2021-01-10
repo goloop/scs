@@ -35,8 +35,8 @@ func TestStrIsKebab(t *testing.T) {
 	}
 }
 
-// TestToKebab tests CamelToKebab function.
-func TestToKebab(t *testing.T) {
+// TestStrToKebab tests StrToKebab function.
+func TestStrToKebab(t *testing.T) {
 	var tests = []struct {
 		value  string
 		result string
@@ -53,7 +53,32 @@ func TestToKebab(t *testing.T) {
 	}
 
 	for i, s := range tests {
-		if r, _ := StrToKebab(s.value); s.result != r {
+		if r := StrToKebab(s.value); s.result != r {
+			t.Errorf("test for %d is failed, "+
+				"expected %s but %s", i, s.result, r)
+		}
+	}
+}
+
+// TestToKebab tests ToKebab function.
+func TestToKebab(t *testing.T) {
+	var tests = []struct {
+		value  string
+		result string
+	}{
+		// Simple examples
+		{"One", "one"},
+		{" One two Three ", "one-two-three"},
+		{"Ice 9", "ice-9"},
+
+		// Examples with acronyms
+		{"is_www_connection", "is-www-connection"},
+		{"httpToHTTPS", "http-to-https"},
+		{"IsHTTPOrHTTPS", "is-http-or-https"},
+	}
+
+	for i, s := range tests {
+		if r := ToKebab(s.value); s.result != r {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}

@@ -32,7 +32,7 @@ type Object struct {
 	value string
 
 	// the do is method to convert the raw string to the specified style.
-	do func(string) (string, error)
+	do func(string) string
 }
 
 // New returns a pointer to a string case style object. The style defines
@@ -50,13 +50,17 @@ func New(style CaseStyle, ss ...string) (*Object, error) {
 	case Snake:
 		obj.do = StrToSnake
 	default:
-		obj.do = func(s string) (string, error) { return s, nil }
+		obj.do = func(s string) string { return s }
 		return &obj, fmt.Errorf("incorrect case style")
 	}
 
-	value, err := obj.do(strings.Join(ss, " "))
-	obj.value = value
-	return &obj, err
+	obj.value = obj.do(strings.Join(ss, " "))
+	return &obj, nil
+}
+
+// IsValid returns true if Object is valid.
+func (o *Object) IsValid() bool {
+	return o.IsCamel() || o.IsKebab() || o.IsPascal() || o.IsSnake()
 }
 
 // IsCamel returns true if object contains camelCase value.
@@ -81,10 +85,9 @@ func (o *Object) IsSnake() bool {
 
 // Eat converts a string to the specified style and stores
 // it as an object value.
-func (o *Object) Eat(s string) (string, error) {
-	value, err := o.do(s)
-	o.value = value
-	return o.value, err
+func (o *Object) Eat(s string) string {
+	o.value = o.do(s)
+	return o.value
 }
 
 // Value returns value of the object.

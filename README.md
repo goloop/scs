@@ -3,7 +3,7 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/goloop/scs)](https://goreportcard.com/report/github.com/goloop/scs) [![License](https://img.shields.io/badge/license-BSD-blue)](https://github.com/goloop/scs/blob/master/LICENSE) [![License](https://img.shields.io/badge/godoc-YES-green)](https://godoc.org/github.com/goloop/scs)
 
-*Version: 0.1.1*
+*Version: 0.2.0*
 
 
 # scs
@@ -208,27 +208,59 @@ StrIsSnake returns true if string is snake_case.
 
 #### func  StrToCamel
 
-    func StrToCamel(s string) (string, error)
+    func StrToCamel(s string) string
 
 StrToCamel converts a string to camelCase.
 
 #### func  StrToKebab
 
-    func StrToKebab(s string) (string, error)
+    func StrToKebab(s string) string
 
 StrToKebab converts a string to kebab-case.
 
 #### func  StrToPascal
 
-    func StrToPascal(s string) (string, error)
+    func StrToPascal(s string) string
 
 StrToPascal converts a string to PascalCase.
 
 #### func  StrToSnake
 
-    func StrToSnake(s string) (string, error)
+    func StrToSnake(s string) string
 
 StrToSnake converts a string to snake_case.
+
+#### func  ToCamel
+
+    func ToCamel(s string) string
+
+ToCamel converts a string to camelCase. Unlike the StrToCamel function, if the
+source string already has a certain format, it will be correctly converted to
+camelCase.
+
+#### func  ToKebab
+
+    func ToKebab(s string) string
+
+ToKebab converts a string to kebab-case. Unlike the StrToKebab function, if the
+source string already has a certain format, it will be correctly converted to
+kebab-case.
+
+#### func  ToPascal
+
+    func ToPascal(s string) string
+
+ToPascal converts a string to PascalCase. Unlike the StrToPascal function, if
+the source string already has a certain format, it will be correctly converted
+to PascalCase.
+
+#### func  ToSnake
+
+    func ToSnake(s string) string
+
+ToSnake converts a string to snake_case. Unlike the StrToSnake function, if the
+source string already has a certain format, it will be correctly converted to
+snake_case.
 
 #### type CaseStyle
 
@@ -269,7 +301,7 @@ string case style. a string (or list of strings) to format.
 
 #### func (*Object) Eat
 
-    func (o *Object) Eat(s string) (string, error)
+    func (o *Object) Eat(s string) string
 
 Eat converts a string to the specified style and stores it as an object value.
 
@@ -296,6 +328,12 @@ IsPascal returns true if object contains PascalCase value.
     func (o *Object) IsSnake() bool
 
 IsSnake returns true if object contains snake-case value.
+
+#### func (*Object) IsValid
+
+    func (o *Object) IsValid() bool
+
+IsValid returns true if Object is valid.
 
 #### func (*Object) ToCamel
 

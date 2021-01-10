@@ -19,8 +19,29 @@ func StrIsCamel(s string) bool {
 }
 
 // StrToCamel converts a string to camelCase.
-func StrToCamel(s string) (string, error) {
+func StrToCamel(s string) string {
 	return toUnited(s, true)
+}
+
+// ToCamel converts a string to camelCase.
+// Unlike the StrToCamel function, if the source string already
+// has a certain format, it will be correctly converted to camelCase.
+func ToCamel(s string) string {
+	switch {
+	case StrIsCamel(s):
+		return s
+	case StrIsKebab(s):
+		r, _ := KebabToCamel(s)
+		return r
+	case StrIsPascal(s):
+		r, _ := PascalToCamel(s)
+		return r
+	case StrIsSnake(s):
+		r, _ := SnakeToCamel(s)
+		return r
+	}
+
+	return StrToCamel(s)
 }
 
 // CamelToKebab converts a camelCase-style string to kebab-case.
@@ -45,7 +66,7 @@ func CamelToPascal(camel string) (string, error) {
 	pascal := camelHead.ReplaceAllString(camel, "${1} ${2}")
 	pascal = camelBody.ReplaceAllString(pascal, "${1} ${2}")
 	pascal = camelNumbers.ReplaceAllString(pascal, " ${1} ")
-	return StrToPascal(pascal)
+	return StrToPascal(pascal), nil
 }
 
 // CamelToSnake converts a camelCase-style string to snake_case.

@@ -17,8 +17,29 @@ func StrIsSnake(s string) bool {
 }
 
 // StrToSnake converts a string to snake_case.
-func StrToSnake(s string) (string, error) {
+func StrToSnake(s string) string {
 	return toSeparate(s, "_")
+}
+
+// ToSnake converts a string to snake_case.
+// Unlike the StrToSnake function, if the source string already
+// has a certain format, it will be correctly converted to snake_case.
+func ToSnake(s string) string {
+	switch {
+	case StrIsCamel(s):
+		r, _ := CamelToSnake(s)
+		return r
+	case StrIsKebab(s):
+		r, _ := KebabToSnake(s)
+		return r
+	case StrIsPascal(s):
+		r, _ := PascalToSnake(s)
+		return r
+	case StrIsSnake(s):
+		return s
+	}
+
+	return StrToSnake(s)
 }
 
 // SnakeToCamel converts a snake_case-style string to camelCase.
@@ -28,12 +49,14 @@ func SnakeToCamel(snake string) (string, error) {
 		return "", fmt.Errorf("value %s isn't snake_case style", snake)
 	}
 
-	return StrToCamel(
+	result := StrToCamel(
 		snakeBody.ReplaceAllStringFunc(
 			snake,
 			func(s string) string { return strings.Replace(s, "_", " ", -1) },
 		),
 	)
+
+	return result, nil
 }
 
 // SnakeToKebab converts a snake_case-style string to kebab-case.
@@ -53,10 +76,12 @@ func SnakeToPascal(snake string) (string, error) {
 		return "", fmt.Errorf("value %s isn't snake_case style", snake)
 	}
 
-	return StrToPascal(
+	result := StrToPascal(
 		snakeBody.ReplaceAllStringFunc(
 			snake,
 			func(s string) string { return strings.Replace(s, "_", " ", -1) },
 		),
 	)
+
+	return result, nil
 }

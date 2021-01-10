@@ -17,7 +17,7 @@ func getChunks(s string) []string {
 }
 
 // The toUnited converts a string to a format similar to camel or PascaCase.
-func toUnited(s string, firstWordIsLower bool) (string, error) {
+func toUnited(s string, firstWordIsLower bool) string {
 	var result string
 
 	for i, chunk := range getChunks(s) {
@@ -34,11 +34,11 @@ func toUnited(s string, firstWordIsLower bool) (string, error) {
 		result += strings.Title(chunk)
 	}
 
-	return result, nil
+	return result
 }
 
 // The toSeparate converts a string to a format similar to snake or kebab-case.
-func toSeparate(s, delimiter string) (string, error) {
+func toSeparate(s, delimiter string) string {
 	var result string
 
 	for i, chunk := range getChunks(s) {
@@ -50,5 +50,5 @@ func toSeparate(s, delimiter string) (string, error) {
 		result += delimiter + chunk
 	}
 
-	return result, nil
+	return result
 }

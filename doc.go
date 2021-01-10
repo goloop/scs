@@ -46,12 +46,19 @@ Example:
         kebab, _ := scs.PascalToKebab(pascal) // http-to-https <nil>
         snake, _ := scs.KebabToSnake(kebab)   // http_to_https <nil>
 
+        // Use strings.ToUpper(snake) for convert to UPPER_SNAKE_CASE.
+
         scs.SnakeToPascal(snake) // HTTPToHTTPS <nil>
         scs.CamelToKebab(camel)  // http-to-https <nil>
 
         // Errors
         scs.CamelToSnake(kebab)  // value http-to-https isn't camelCase style
         scs.PascalToCamel(camel) // value httpToHTTPS isn't PascalCase style
+
+        // Convert anything to anything correctly
+        scs.ToCamel(snake)  // httpToHTTPS
+        scs.ToPascal(kebab) // HTTPToHTTPS
+        scs.ToSnake(s)      // http_to_https
     }
 
 ### Style objects

@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	snakeBody   = regexp.MustCompile("(^[A-Za-z])|_([A-Za-z])")
+	snakeBody   = regexp.MustCompile("(^[A-Za-z0-9])|_([A-Za-z0-9])")
 	isSnakeCase = regexp.MustCompile("(^[a-z0-9]+_[a-z0-9_]+$)|(^[a-z0-9]+$)")
 )
 

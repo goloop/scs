@@ -15,7 +15,7 @@ func TestStrIsCamel(t *testing.T) {
 		{"ice9", true},
 		{"Ice9", false},
 
-		// Examples with acronyms
+		// Examples with abbreviations
 		{"isWWWConnection", true},
 		{"httpToHTTPS", true},
 		{"isHTTPOrHTTPS", true},
@@ -44,7 +44,7 @@ func TestStrToCamel(t *testing.T) {
 		{" One two Three ", "oneTwoThree"},
 		{"Ice 9", "ice9"},
 
-		// Examples with acronyms
+		// Examples with abbreviations
 		{"is www Connection", "isWWWConnection"},
 		{"http to https", "httpToHTTPS"},
 		{"is http or https", "isHTTPOrHTTPS"},
@@ -69,10 +69,11 @@ func TestToCamel(t *testing.T) {
 		{" One two Three ", "oneTwoThree"},
 		{"Ice 9", "ice9"},
 
-		// Examples with acronyms
+		// Examples with abbreviations
 		{"IsWWWConnection", "isWWWConnection"},
 		{"http-to-https", "httpToHTTPS"},
 		{"is_http_or_https", "isHTTPOrHTTPS"},
+		{"httpToHTTPS", "httpToHTTPS"},
 	}
 
 	for i, s := range tests {
@@ -92,9 +93,9 @@ func TestCamelToKebab(t *testing.T) {
 		// Simple examples
 		{"one", "one"},
 		{"oneTwoThree", "one-two-three"},
-		{"ice9", "ice9"},
+		{"ice9", "ice-9"},
 
-		// Examples with acronyms
+		// Examples with abbreviations
 		{"isWWWConnection", "is-www-connection"},
 		{"httpToHTTPS", "http-to-https"},
 		{"isHTTPOrHTTPS", "is-http-or-https"},
@@ -105,6 +106,16 @@ func TestCamelToKebab(t *testing.T) {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}
+	}
+}
+
+// TestCamelToKebabError tests CamelToKebab function with wrong value.
+func TestCamelToKebabError(t *testing.T) {
+	var notCamel = "one-two-three"
+
+	_, err := CamelToKebab(notCamel)
+	if err == nil {
+		t.Error("not camel to kebab")
 	}
 }
 
@@ -119,7 +130,7 @@ func TestCamelToPascal(t *testing.T) {
 		{"oneTwoThree", "OneTwoThree"},
 		{"ice9", "Ice9"},
 
-		// Examples with acronyms
+		// Examples with abbreviations
 		{"isWWWConnection", "IsWWWConnection"},
 		{"httpToHTTPS", "HTTPToHTTPS"},
 		{"isHTTPOrHTTPS", "IsHTTPOrHTTPS"},
@@ -133,6 +144,16 @@ func TestCamelToPascal(t *testing.T) {
 	}
 }
 
+// TestCamelToPascalError tests CamelToPascal function with wrong value.
+func TestCamelToPascalError(t *testing.T) {
+	var notCamel = "one-two-three"
+
+	_, err := CamelToPascal(notCamel)
+	if err == nil {
+		t.Error("not camel to pascal")
+	}
+}
+
 // TestCamelToSnake tests CamelToSnake function.
 func TestCamelToSnake(t *testing.T) {
 	var tests = []struct {
@@ -142,9 +163,9 @@ func TestCamelToSnake(t *testing.T) {
 		// Simple examples
 		{"one", "one"},
 		{"oneTwoThree", "one_two_three"},
-		{"ice9", "ice9"},
+		{"ice9", "ice_9"},
 
-		// Examples with acronyms
+		// Examples with abbreviations
 		{"isWWWConnection", "is_www_connection"},
 		{"httpToHTTPS", "http_to_https"},
 		{"isHTTPOrHTTPS", "is_http_or_https"},
@@ -155,5 +176,15 @@ func TestCamelToSnake(t *testing.T) {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}
+	}
+}
+
+// TestCamelToSnakeError tests CamelToSnake function with wrong value.
+func TestCamelToSnakeError(t *testing.T) {
+	var notCamel = "one-two-three"
+
+	_, err := CamelToSnake(notCamel)
+	if err == nil {
+		t.Error("not camel to snake")
 	}
 }

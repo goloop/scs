@@ -2,6 +2,13 @@ package scs
 
 import "testing"
 
+// TestVersion tests Version function.
+func TestVersion(t *testing.T) {
+	if v := Version(); v != "v"+version {
+		t.Error("incorrect  Version function")
+	}
+}
+
 // TestNew tests New function.
 func TestNew(t *testing.T) {
 	var test = struct {
@@ -18,9 +25,14 @@ func TestNew(t *testing.T) {
 		snake:   "http_2_https_convertor",
 	}
 
-	_, err := New(10)
+	// Incorrect
+	wrong, err := New(10)
 	if err == nil {
 		t.Error("there must be an error")
+	}
+
+	if wrong.do("a-b-c") != "a-b-c" {
+		t.Error("incorrect do method")
 	}
 
 	// Camel
@@ -71,90 +83,192 @@ func TestNew(t *testing.T) {
 
 // TestObjIsValid tests IsValid method of the object.
 func TestObjIsValid(t *testing.T) {
-	obj, _ := New(0, "hello world")
-	if obj.IsValid() {
+	// Incorrect
+	wrongNew, err := New(0, "hello world")
+	if err == nil {
+		t.Error("there must be an error")
+	}
+
+	if wrongNew.IsValid() {
 		t.Error("test for IsValid is failed, " +
 			"expected false but true")
 	}
-}
 
-// TestObjToCamel tests ToCamel method of the object.
-func TestObjToCamel(t *testing.T) {
-	var test = struct {
-		example string
-		camel   string
-		pascal  string
-	}{
-		example: "http 2 https convertor",
-		camel:   "http2HTTPSConvertor",
-		pascal:  "HTTP2HTTPSConvertor",
+	wrongRaw := &StringCaseStyle{}
+	if wrongRaw.IsValid() {
+		t.Error("test for IsValid is failed, " +
+			"expected false but true")
 	}
 
-	pascal, _ := New(Pascal, test.example)
-	camel := pascal.ToCamel()
-	if r := camel.Value(); r != test.camel {
-		t.Errorf("test for Pascal To Camel is failed, "+
-			"expected %s but %s", test.camel, r)
+	// Valid
+	obj, err := New(Camel, "hello world")
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !obj.IsValid() {
+		t.Error("test for IsValid is failed, " +
+			"expected true but false")
 	}
 }
 
-// TestObjToKebab tests ToKebab method of the object.
-func TestObjToKebab(t *testing.T) {
-	var test = struct {
-		example string
-		kebab   string
-		snake   string
+// TestObjPascalCopyTo tests Pascal -> CopyTo* method of the object.
+func TestObjPascalCopyTo(t *testing.T) {
+	basic, _ := New(Pascal, "http 2 https convertor")
+	tests := []struct {
+		fn     func() (*StringCaseStyle, error)
+		result string
 	}{
-		example: "http 2 https convertor",
-		kebab:   "http-2-https-convertor",
-		snake:   "http_2_https_convertor",
+		{basic.CopyToCamel, "http2HTTPSConvertor"},
+		{basic.CopyToKebab, "http-2-https-convertor"},
+		{basic.CopyToPascal, "HTTP2HTTPSConvertor"},
+		{basic.CopyToSnake, "http_2_https_convertor"},
 	}
 
-	snake, _ := New(Snake, test.example)
-	kebab := snake.ToKebab()
-	if r := kebab.Value(); r != test.kebab {
-		t.Errorf("test for Snake To Kebab is failed, "+
-			"expected %s but %s", test.kebab, r)
+	for _, test := range tests {
+		obj, err := test.fn()
+		if err != nil {
+			t.Error(err)
+		}
+
+		if r := obj.Value(); r != test.result {
+			t.Errorf("expected %s but %s", test.result, r)
+		}
 	}
 }
 
-// TestObjToPascal tests ToPascal method of the object.
-func TestObjToPascal(t *testing.T) {
-	var test = struct {
-		example string
-		camel   string
-		pascal  string
-	}{
-		example: "http 2 https convertor",
-		camel:   "http2HTTPSConvertor",
-		pascal:  "HTTP2HTTPSConvertor",
+// TestObjPascalToCamel tests Pascal -> ToPascal method of the object.
+func TestObjPascalToCamel(t *testing.T) {
+	var expected = "http2HTTPSConvertor"
+
+	obj, _ := New(Pascal, "http 2 https convertor")
+	err := obj.ToCamel()
+	if err != nil {
+		t.Error(err)
 	}
 
-	camel, _ := New(Camel, test.example)
-	pascal := camel.ToPascal()
-	if r := pascal.Value(); r != test.pascal {
-		t.Errorf("test for Camle To Pascal is failed, "+
-			"expected %s but %s", test.pascal, r)
+	if r := obj.Value(); r != expected {
+		t.Errorf("expected %s but %s", expected, r)
 	}
 }
 
-// TestObjToSnake tests ToSnake method of the object.
-func TestObjToSnake(t *testing.T) {
-	var test = struct {
-		example string
-		kebab   string
-		snake   string
+// TestObjSnakeCopyTo tests Snake -> CopyTo* method of the object.
+func TestObjSnakeCopyTo(t *testing.T) {
+	basic, _ := New(Snake, "http 2 https convertor")
+	tests := []struct {
+		fn     func() (*StringCaseStyle, error)
+		result string
 	}{
-		example: "http 2 https convertor",
-		kebab:   "http-2-https-convertor",
-		snake:   "http_2_https_convertor",
+		{basic.CopyToCamel, "http2HTTPSConvertor"},
+		{basic.CopyToKebab, "http-2-https-convertor"},
+		{basic.CopyToPascal, "HTTP2HTTPSConvertor"},
+		{basic.CopyToSnake, "http_2_https_convertor"},
 	}
 
-	kebab, _ := New(Kebab, test.example)
-	snake := kebab.ToSnake()
-	if r := snake.Value(); r != test.snake {
-		t.Errorf("test for Kebab To Snake is failed, "+
-			"expected %s but %s", test.snake, r)
+	for _, test := range tests {
+		obj, err := test.fn()
+		if err != nil {
+			t.Error(err)
+		}
+
+		if r := obj.Value(); r != test.result {
+			t.Errorf("expected %s but %s", test.result, r)
+		}
+	}
+}
+
+// TestObjSnakeToKebab tests Snake -> ToKebab method of the object.
+func TestObjSnakeToKebab(t *testing.T) {
+	var expected = "http-2-https-convertor"
+
+	obj, _ := New(Snake, "http 2 https convertor")
+	err := obj.ToKebab()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if r := obj.Value(); r != expected {
+		t.Errorf("expected %s but %s", expected, r)
+	}
+}
+
+// TestObjCamelToCopy tests Camel -> CopyTo* method of the object.
+func TestObjCamelCopyTo(t *testing.T) {
+	basic, _ := New(Camel, "http 2 https convertor")
+	tests := []struct {
+		fn     func() (*StringCaseStyle, error)
+		result string
+	}{
+		{basic.CopyToCamel, "http2HTTPSConvertor"},
+		{basic.CopyToKebab, "http-2-https-convertor"},
+		{basic.CopyToPascal, "HTTP2HTTPSConvertor"},
+		{basic.CopyToSnake, "http_2_https_convertor"},
+	}
+
+	for _, test := range tests {
+		obj, err := test.fn()
+		if err != nil {
+			t.Error(err)
+		}
+
+		if r := obj.Value(); r != test.result {
+			t.Errorf("expected %s but %s", test.result, r)
+		}
+	}
+}
+
+// TestObjCamleToPascal tests Camel -> ToPascal method of the object.
+func TestObjCamelToPascal(t *testing.T) {
+	var expected = "HTTP2HTTPSConvertor"
+
+	obj, _ := New(Camel, "http 2 https convertor")
+	err := obj.ToPascal()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if r := obj.Value(); r != expected {
+		t.Errorf("expected %s but %s", expected, r)
+	}
+}
+
+// TestObjKebabCopyTo tests Kebab -> CopyTo method of the object.
+func TestObjKebabCopyTo(t *testing.T) {
+	basic, _ := New(Kebab, "http 2 https convertor")
+	tests := []struct {
+		fn     func() (*StringCaseStyle, error)
+		result string
+	}{
+		{basic.CopyToCamel, "http2HTTPSConvertor"},
+		{basic.CopyToKebab, "http-2-https-convertor"},
+		{basic.CopyToPascal, "HTTP2HTTPSConvertor"},
+		{basic.CopyToSnake, "http_2_https_convertor"},
+	}
+
+	for _, test := range tests {
+		obj, err := test.fn()
+		if err != nil {
+			t.Error(err)
+		}
+
+		if r := obj.Value(); r != test.result {
+			t.Errorf("expected %s but %s", test.result, r)
+		}
+	}
+}
+
+// TestObjKebabToSnake tests Kebab -> ToSnake method of the object.
+func TestObjKebabToSnake(t *testing.T) {
+	var expected = "http_2_https_convertor"
+
+	obj, _ := New(Kebab, "http 2 https convertor")
+	err := obj.ToSnake()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if r := obj.Value(); r != expected {
+		t.Errorf("expected %s but %s", expected, r)
 	}
 }
 
@@ -187,5 +301,13 @@ func TestObjIsSnake(t *testing.T) {
 	snake, _ := New(Snake)
 	if !snake.IsSnake() {
 		t.Error("test for IsSnake() is failed, expected true but false")
+	}
+}
+
+// TestObjSet tests Set method of the object.
+func TestObjSet(t *testing.T) {
+	snake, _ := New(Snake)
+	if snake.Set("hello world").Value() != "hello_world" {
+		t.Error("conversion failed")
 	}
 }

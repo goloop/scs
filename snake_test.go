@@ -17,7 +17,7 @@ func TestStrIsSnake(t *testing.T) {
 		{"ice9", true},
 		{"Ice9", false},
 
-		// Examples with acronyms
+		// Examples with abbreviations
 		{"is_www_connection", true},
 		{"IsWWWConnection", false},
 		{"HTTPToHTTPS", false},
@@ -46,7 +46,7 @@ func TestStrToSnake(t *testing.T) {
 		{" One two Three ", "one_two_three"},
 		{"Ice 9", "ice_9"},
 
-		// Examples with acronyms
+		// Examples with abbreviations
 		{"is www Connection", "is_www_connection"},
 		{"http to https", "http_to_https"},
 		{"is http or https", "is_http_or_https"},
@@ -71,10 +71,11 @@ func TestToSnake(t *testing.T) {
 		{" One two Three ", "one_two_three"},
 		{"Ice 9", "ice_9"},
 
-		// Examples with acronyms
+		// Examples with abbreviations
 		{"isWWWConnection", "is_www_connection"},
 		{"HTTPToHTTPS", "http_to_https"},
 		{"is-http-or-https", "is_http_or_https"},
+		{"is_http_or_https", "is_http_or_https"},
 	}
 
 	for i, s := range tests {
@@ -96,7 +97,7 @@ func TestSnakeToCamel(t *testing.T) {
 		{"one_two_three", "oneTwoThree"},
 		{"ice_9", "ice9"},
 
-		// Examples with acronyms
+		// Examples with abbreviations
 		{"is_www_connection", "isWWWConnection"},
 		{"http_to_https", "httpToHTTPS"},
 		{"is_http_or_https", "isHTTPOrHTTPS"},
@@ -107,6 +108,16 @@ func TestSnakeToCamel(t *testing.T) {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}
+	}
+}
+
+// TestSnakeToCamelError tests SnakeToCamel function with wrong value.
+func TestSnakeToCamelError(t *testing.T) {
+	var notSnake = "oneTwoThree"
+
+	_, err := SnakeToCamel(notSnake)
+	if err == nil {
+		t.Error("not snake to camel")
 	}
 }
 
@@ -121,7 +132,7 @@ func TestSnakeToKebab(t *testing.T) {
 		{"one_two_three", "one-two-three"},
 		{"ice_9", "ice-9"},
 
-		// Examples with acronyms
+		// Examples with abbreviations
 		{"is_www_connection", "is-www-connection"},
 		{"http_to_https", "http-to-https"},
 		{"is_http_or_https", "is-http-or-https"},
@@ -132,6 +143,16 @@ func TestSnakeToKebab(t *testing.T) {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}
+	}
+}
+
+// TestSnakeToKebabError tests SnakeToKebab function with wrong value.
+func TestSnakeToKebabError(t *testing.T) {
+	var notSnake = "oneTwoThree"
+
+	_, err := SnakeToKebab(notSnake)
+	if err == nil {
+		t.Error("not snake to kebab")
 	}
 }
 
@@ -146,7 +167,7 @@ func TestSnakeToPascal(t *testing.T) {
 		{"one_two_three", "OneTwoThree"},
 		{"ice_9", "Ice9"},
 
-		// Examples with acronyms
+		// Examples with abbreviations
 		{"is_www_connection", "IsWWWConnection"},
 		{"http_to_https", "HTTPToHTTPS"},
 		{"is_http_or_https", "IsHTTPOrHTTPS"},
@@ -157,5 +178,15 @@ func TestSnakeToPascal(t *testing.T) {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}
+	}
+}
+
+// TestSnakeToPascalError tests SnakeToPascal function with wrong value.
+func TestSnakeToPascalError(t *testing.T) {
+	var notSnake = "oneTwoThree"
+
+	_, err := SnakeToPascal(notSnake)
+	if err == nil {
+		t.Error("not snake to pascal")
 	}
 }

@@ -22,151 +22,233 @@ const (
 // CaseStyle is string case style type.
 type CaseStyle uint8
 
-// Object is object of the string case style (SCS).
-type Object struct {
-	// the style is flag of the string case style.
-	style CaseStyle
-
-	// the value string value in case-style format
-	// that set in the style parameter.
-	value string
-
-	// the do is method to convert the raw string to the specified style.
-	do func(string) string
+// StringCaseStyle is object of the string case style (SCS).
+// It can be created correctly through the New function only.
+type StringCaseStyle struct {
+	do      func(string) string // convert raw string to the case-styling value
+	style   CaseStyle           // is the flag of the string case style
+	value   string              // value in case-style format
+	isValid bool                // true if the object was created correctly
 }
 
 // New returns a pointer to a string case style object. The style defines
 // the string case style. a string (or list of strings) to format.
-func New(style CaseStyle, ss ...string) (*Object, error) {
-	var obj = Object{style: style}
+func New(style CaseStyle, value ...string) (*StringCaseStyle, error) {
+	var do func(string) string
 
 	switch style {
 	case Camel:
-		obj.do = StrToCamel
+		do = StrToCamel
 	case Kebab:
-		obj.do = StrToKebab
+		do = StrToKebab
 	case Pascal:
-		obj.do = StrToPascal
+		do = StrToPascal
 	case Snake:
-		obj.do = StrToSnake
+		do = StrToSnake
 	default:
-		obj.do = func(s string) string { return s }
-		return &obj, fmt.Errorf("incorrect case style")
+		return &StringCaseStyle{do: func(s string) string { return s }},
+			fmt.Errorf("incorrect case style")
 	}
 
-	obj.value = obj.do(strings.Join(ss, " "))
-	return &obj, nil
+	return &StringCaseStyle{
+		do:      do,
+		style:   style,
+		value:   do(strings.Join(value, " ")),
+		isValid: true,
+	}, nil
 }
 
-// IsValid returns true if Object is valid.
-func (o *Object) IsValid() bool {
-	return o.IsCamel() || o.IsKebab() || o.IsPascal() || o.IsSnake()
+// IsValid returns true if StringCaseStyle is valid.
+func (o *StringCaseStyle) IsValid() bool {
+	return o.isValid // o.IsCamel() || o.IsKebab() || o.IsPascal() || o.IsSnake()
 }
 
 // IsCamel returns true if object contains camelCase value.
-func (o *Object) IsCamel() bool {
+func (o *StringCaseStyle) IsCamel() bool {
 	return o.style == Camel
 }
 
 // IsKebab returns true if object contains kebab-case value.
-func (o *Object) IsKebab() bool {
+func (o *StringCaseStyle) IsKebab() bool {
 	return o.style == Kebab
 }
 
 // IsPascal returns true if object contains PascalCase value.
-func (o *Object) IsPascal() bool {
+func (o *StringCaseStyle) IsPascal() bool {
 	return o.style == Pascal
 }
 
 // IsSnake returns true if object contains snake-case value.
-func (o *Object) IsSnake() bool {
+func (o *StringCaseStyle) IsSnake() bool {
 	return o.style == Snake
 }
 
 // Eat converts a string to the specified style and stores
 // it as an object value.
-func (o *Object) Eat(s string) string {
+func (o *StringCaseStyle) Eat(s string) string {
 	o.value = o.do(s)
 	return o.value
 }
 
+// Set sets new value.
+func (o *StringCaseStyle) Set(s string) *StringCaseStyle {
+	o.value = o.do(s)
+	return o
+}
+
 // Value returns value of the object.
-func (o *Object) Value() string {
+func (o *StringCaseStyle) Value() string {
 	return o.value
 }
 
-// ToCamel converts an object to Camel Type Object
-// and returns a pointer to it.
-func (o *Object) ToCamel() *Object {
-	var obj = Object{style: Camel, do: StrToCamel}
+// CopyToCamel converts an object to Camel Type StringCaseStyle
+// and returns new pointer to it.
+func (o *StringCaseStyle) CopyToCamel() (*StringCaseStyle, error) {
+	var (
+		value string
+		err   error
+	)
 
 	switch o.style {
 	case Camel:
-		obj.value = o.value
+		value = o.value
 	case Kebab:
-		obj.value, _ = KebabToCamel(o.value)
+		value, err = KebabToCamel(o.value)
 	case Pascal:
-		obj.value, _ = PascalToCamel(o.value)
+		value, err = PascalToCamel(o.value)
 	case Snake:
-		obj.value, _ = SnakeToCamel(o.value)
+		value, err = SnakeToCamel(o.value)
 	}
 
-	return &obj
+	return &StringCaseStyle{
+		do:      StrToCamel,
+		style:   Camel,
+		value:   value,
+		isValid: err == nil,
+	}, err
 }
 
-// ToKebab converts an object to Kebab Type Object
-// and returns a pointer to it.
-func (o *Object) ToKebab() *Object {
-	var obj = Object{style: Kebab, do: StrToKebab}
+// ToCamel converts an object to Camel Type StringCaseStyle.
+func (o *StringCaseStyle) ToCamel() error {
+	obj, err := o.CopyToCamel()
+	o.style = obj.style
+	o.value = obj.value
+	o.do = obj.do
+	o.isValid = obj.isValid
 
-	switch o.style {
-	case Camel:
-		obj.value, _ = CamelToKebab(o.value)
-	case Kebab:
-		obj.value = o.value
-	case Pascal:
-		obj.value, _ = PascalToKebab(o.value)
-	case Snake:
-		obj.value, _ = SnakeToKebab(o.value)
-	}
-
-	return &obj
+	return err
 }
 
-// ToPascal converts an object to Pascal Type Object
-// and returns a pointer to it.
-func (o *Object) ToPascal() *Object {
-	var obj = Object{style: Pascal, do: StrToPascal}
+// CopyToKebab converts an object to Kebab Type StringCaseStyle
+// and returns new pointer to it.
+func (o *StringCaseStyle) CopyToKebab() (*StringCaseStyle, error) {
+	var (
+		value string
+		err   error
+	)
 
 	switch o.style {
 	case Camel:
-		obj.value, _ = CamelToPascal(o.value)
+		value, err = CamelToKebab(o.value)
 	case Kebab:
-		obj.value, _ = KebabToPascal(o.value)
+		value = o.value
 	case Pascal:
-		obj.value = o.value
+		value, err = PascalToKebab(o.value)
 	case Snake:
-		obj.value, _ = SnakeToPascal(o.value)
+		value, err = SnakeToKebab(o.value)
 	}
 
-	return &obj
+	return &StringCaseStyle{
+		do:      StrToKebab,
+		style:   Kebab,
+		value:   value,
+		isValid: err == nil,
+	}, err
 }
 
-// ToSnake converts an object to Snake Type Object
-// and returns a pointer to it.
-func (o *Object) ToSnake() *Object {
-	var obj = Object{style: Snake, do: StrToSnake}
+// ToKebab converts an object to Kebab Type StringCaseStyle.
+func (o *StringCaseStyle) ToKebab() error {
+	obj, err := o.CopyToKebab()
+	o.style = obj.style
+	o.value = obj.value
+	o.do = obj.do
+	o.isValid = obj.isValid
+
+	return err
+}
+
+// CopyToPascal converts an object to Pascal Type StringCaseStyle
+// and returns new pointer to it.
+func (o *StringCaseStyle) CopyToPascal() (*StringCaseStyle, error) {
+	var (
+		value string
+		err   error
+	)
 
 	switch o.style {
 	case Camel:
-		obj.value, _ = CamelToSnake(o.value)
+		value, err = CamelToPascal(o.value)
 	case Kebab:
-		obj.value, _ = KebabToSnake(o.value)
+		value, err = KebabToPascal(o.value)
 	case Pascal:
-		obj.value, _ = PascalToSnake(o.value)
+		value = o.value
 	case Snake:
-		obj.value = o.value
+		value, err = SnakeToPascal(o.value)
 	}
 
-	return &obj
+	return &StringCaseStyle{
+		do:      StrToPascal,
+		style:   Pascal,
+		value:   value,
+		isValid: err == nil,
+	}, err
+}
+
+// ToPascal converts an object to Pascal Type StringCaseStyle.
+func (o *StringCaseStyle) ToPascal() error {
+	obj, err := o.CopyToPascal()
+	o.style = obj.style
+	o.value = obj.value
+	o.do = obj.do
+	o.isValid = obj.isValid
+
+	return err
+}
+
+// CopyToSnake converts an object to Snake Type StringCaseStyle
+// and returns new pointer to it.
+func (o *StringCaseStyle) CopyToSnake() (*StringCaseStyle, error) {
+	var (
+		value string
+		err   error
+	)
+
+	switch o.style {
+	case Camel:
+		value, err = CamelToSnake(o.value)
+	case Kebab:
+		value, err = KebabToSnake(o.value)
+	case Pascal:
+		value, err = PascalToSnake(o.value)
+	case Snake:
+		value = o.value
+	}
+
+	return &StringCaseStyle{
+		do:      StrToSnake,
+		style:   Snake,
+		value:   value,
+		isValid: err == nil,
+	}, err
+}
+
+// ToSnake converts an object to Snake Type StringCaseStyle.
+func (o *StringCaseStyle) ToSnake() error {
+	obj, err := o.CopyToSnake()
+	o.style = obj.style
+	o.value = obj.value
+	o.do = obj.do
+	o.isValid = obj.isValid
+
+	return err
 }

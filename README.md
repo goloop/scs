@@ -5,6 +5,7 @@
 
 *Version: 0.3.1*
 
+**not supported**
 
 # scs
 

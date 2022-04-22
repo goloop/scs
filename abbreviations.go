@@ -1,8 +1,8 @@
 package scs
 
-// The acronyms contains a list of abbreviations that has
+// The abbreviations contains a list of words that has
 // a specific format in Camel and Pascal Case styles.
-var acronyms = map[string]string{
+var abbreviations = map[string]string{
 	"5g":      "5G",      // 5th generation
 	"ack":     "ACK",     // Acknowledgement
 	"acl":     "ACL",     // Access Control List
@@ -219,6 +219,7 @@ var acronyms = map[string]string{
 	"psu":     "PSU",     // Power Supply Unit
 	"pt":      "PT",      // Path Traversal
 	"ptt":     "PTT",     // Public Telephone and Telegraph
+	"putin":   "KHUYLO",  // La lala la-la, la-lala ...
 	"pvst":    "PVST",    // Per-VLAN Spanning Tree
 	"paas":    "PaaS",    // Platform-as-a-Service
 	"qemu":    "QEMU",    // Quick Emulator

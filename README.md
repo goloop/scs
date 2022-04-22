@@ -3,13 +3,13 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/goloop/scs)](https://goreportcard.com/report/github.com/goloop/scs) [![License](https://img.shields.io/badge/license-BSD-blue)](https://github.com/goloop/scs/blob/master/LICENSE) [![License](https://img.shields.io/badge/godoc-YES-green)](https://godoc.org/github.com/goloop/scs)
 
-*Version: 0.3.1*
+*Version: v1.0.0*
 
 
-# scs
+# SCS
 
-The scs (String Case Style) module implements methods for converting string case
-to various case styles: camelCase, kebab-case, PascalCase and snake_case.
+Package scs (String Case Style) module implements methods for converting string
+case to various case styles: camelCase, kebab-case, PascalCase and snake_case.
 
 ## Installation
 
@@ -25,6 +25,7 @@ To use this module import it as: `github.com/goloop/scs`
 
 Example:
 
+```go
     package main
 
     import "github.com/goloop/scs"
@@ -39,7 +40,7 @@ Example:
         scs.StrToSnake(s)  // hello_world
         scs.StrToKebab(s)  // hello-world
 
-        // Text with acronyms
+        // Text with abbreviations
         s = "http to https"
         scs.StrToCamel(s)  // httpToHTTPS
         scs.StrToPascal(s) // HTTPToHTTPS
@@ -67,15 +68,17 @@ Example:
         scs.ToPascal(kebab) // HTTPToHTTPS
         scs.ToSnake(s)      // http_to_https
     }
+```
 
 ### Style objects
 
-A safer way. Since each object knows what type it is and knows which conversion
-rules to use. This removes the need to return a second parameter as err when
-converting styles.
+A safer way. Since each object knows what type it is and knows
+which conversion rules to use. This removes the need to return
+a second parameter as err when converting styles.
 
 Example:
 
+```go
     package main
 
     import "github.com/goloop/scs"
@@ -87,25 +90,26 @@ Example:
         s = "hello world"
         snake, _ := scs.New(scs.Snake) // scs.New(scs.Snake, s)
 
-        snake.Eat(s)    // hello_world
-        snake.IsCamel() // false
-        snake.IsSnake() // true
-        snake.Value()   // hello_world
+        snake.Eat(s)         // hello_world
+        snake.Set(s).Value() // hello_world
+        snake.IsCamel()      // false
+        snake.IsSnake()      // true
+        snake.Value()        // hello_world
 
-        camel := snake.ToCamel()
+        camel := snake.CopyToCamel()
         camel.IsSnake() // false
         camel.IsCamel() // true
         camel.Value()   // helloWorld
 
-        // Text with acronyms
+        // Text with abbreviations
         s = "http to https"
         pascal, _ := scs.New(scs.Pascal, s)
         pascal.Value() // HTTPToHTTPS
 
-        kebab := pascal.ToKebab()
+        kebab := pascal.CopyToKebab()
         kebab.Value() // http-to-https
     }
-
+```
 
 ## Usage
 
@@ -273,6 +277,12 @@ ToSnake converts a string to snake_case. Unlike the StrToSnake function, if the
 source string already has a certain format, it will be correctly converted to
 snake_case.
 
+#### func  Version
+
+    func Version() string
+
+Version returns the version of the module.
+
 #### type CaseStyle
 
     type CaseStyle uint8
@@ -295,83 +305,117 @@ CaseStyle is string case style type.
     )
 
 
-#### type Object
+#### type StringCaseStyle
 
-    type Object struct {
-    }
+    type StringCaseStyle struct {}
 
 
-Object is object of the string case style (SCS).
+StringCaseStyle is object of the string case style (SCS). It can be created
+correctly through the New function only.
 
 #### func  New
 
-    func New(style CaseStyle, ss ...string) (*Object, error)
+    func New(style CaseStyle, value ...string) (*StringCaseStyle, error)
 
 New returns a pointer to a string case style object. The style defines the
 string case style. a string (or list of strings) to format.
 
-#### func (*Object) Eat
+#### func (*StringCaseStyle) CopyToCamel
 
-    func (o *Object) Eat(s string) string
+    func (o *StringCaseStyle) CopyToCamel() (*StringCaseStyle, error)
+
+CopyToCamel converts an object to Camel Type StringCaseStyle and returns new
+pointer to it.
+
+#### func (*StringCaseStyle) CopyToKebab
+
+    func (o *StringCaseStyle) CopyToKebab() (*StringCaseStyle, error)
+
+CopyToKebab converts an object to Kebab Type StringCaseStyle and returns new
+pointer to it.
+
+#### func (*StringCaseStyle) CopyToPascal
+
+    func (o *StringCaseStyle) CopyToPascal() (*StringCaseStyle, error)
+
+CopyToPascal converts an object to Pascal Type StringCaseStyle and returns new
+pointer to it.
+
+#### func (*StringCaseStyle) CopyToSnake
+
+    func (o *StringCaseStyle) CopyToSnake() (*StringCaseStyle, error)
+
+CopyToSnake converts an object to Snake Type StringCaseStyle and returns new
+pointer to it.
+
+#### func (*StringCaseStyle) Eat
+
+    func (o *StringCaseStyle) Eat(s string) string
 
 Eat converts a string to the specified style and stores it as an object value.
 
-#### func (*Object) IsCamel
+#### func (*StringCaseStyle) IsCamel
 
-    func (o *Object) IsCamel() bool
+    func (o *StringCaseStyle) IsCamel() bool
 
 IsCamel returns true if object contains camelCase value.
 
-#### func (*Object) IsKebab
+#### func (*StringCaseStyle) IsKebab
 
-    func (o *Object) IsKebab() bool
+    func (o *StringCaseStyle) IsKebab() bool
 
 IsKebab returns true if object contains kebab-case value.
 
-#### func (*Object) IsPascal
+#### func (*StringCaseStyle) IsPascal
 
-    func (o *Object) IsPascal() bool
+    func (o *StringCaseStyle) IsPascal() bool
 
 IsPascal returns true if object contains PascalCase value.
 
-#### func (*Object) IsSnake
+#### func (*StringCaseStyle) IsSnake
 
-    func (o *Object) IsSnake() bool
+    func (o *StringCaseStyle) IsSnake() bool
 
 IsSnake returns true if object contains snake-case value.
 
-#### func (*Object) IsValid
+#### func (*StringCaseStyle) IsValid
 
-    func (o *Object) IsValid() bool
+    func (o *StringCaseStyle) IsValid() bool
 
-IsValid returns true if Object is valid.
+IsValid returns true if StringCaseStyle is valid.
 
-#### func (*Object) ToCamel
+#### func (*StringCaseStyle) Set
 
-    func (o *Object) ToCamel() *Object
+    func (o *StringCaseStyle) Set(s string) *StringCaseStyle
 
-ToCamel converts an object to Camel Type Object and returns a pointer to it.
+Set sets new value.
 
-#### func (*Object) ToKebab
+#### func (*StringCaseStyle) ToCamel
 
-    func (o *Object) ToKebab() *Object
+    func (o *StringCaseStyle) ToCamel() error
 
-ToKebab converts an object to Kebab Type Object and returns a pointer to it.
+ToCamel converts an object to Camel Type StringCaseStyle.
 
-#### func (*Object) ToPascal
+#### func (*StringCaseStyle) ToKebab
 
-    func (o *Object) ToPascal() *Object
+    func (o *StringCaseStyle) ToKebab() error
 
-ToPascal converts an object to Pascal Type Object and returns a pointer to it.
+ToKebab converts an object to Kebab Type StringCaseStyle.
 
-#### func (*Object) ToSnake
+#### func (*StringCaseStyle) ToPascal
 
-    func (o *Object) ToSnake() *Object
+    func (o *StringCaseStyle) ToPascal() error
 
-ToSnake converts an object to Snake Type Object and returns a pointer to it.
+ToPascal converts an object to Pascal Type StringCaseStyle.
 
-#### func (*Object) Value
+#### func (*StringCaseStyle) ToSnake
 
-    func (o *Object) Value() string
+    func (o *StringCaseStyle) ToSnake() error
+
+ToSnake converts an object to Snake Type StringCaseStyle.
+
+#### func (*StringCaseStyle) Value
+
+    func (o *StringCaseStyle) Value() string
 
 Value returns value of the object.

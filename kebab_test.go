@@ -17,7 +17,7 @@ func TestStrIsKebab(t *testing.T) {
 		{"ice9", true},
 		{"Ice9", false},
 
-		// Examples with acronyms
+		// Examples with abbreviations
 		{"is-www-connection", true},
 		{"IsWWWConnection", false},
 		{"HTTPToHTTPS", false},
@@ -46,7 +46,7 @@ func TestStrToKebab(t *testing.T) {
 		{" One two Three ", "one-two-three"},
 		{"Ice 9", "ice-9"},
 
-		// Examples with acronyms
+		// Examples with abbreviations
 		{"is www Connection", "is-www-connection"},
 		{"http to https", "http-to-https"},
 		{"is http or https", "is-http-or-https"},
@@ -71,10 +71,11 @@ func TestToKebab(t *testing.T) {
 		{" One two Three ", "one-two-three"},
 		{"Ice 9", "ice-9"},
 
-		// Examples with acronyms
+		// Examples with abbreviations
 		{"is_www_connection", "is-www-connection"},
 		{"httpToHTTPS", "http-to-https"},
 		{"IsHTTPOrHTTPS", "is-http-or-https"},
+		{"is-http-or-https", "is-http-or-https"},
 	}
 
 	for i, s := range tests {
@@ -96,7 +97,7 @@ func TestKebabToCamel(t *testing.T) {
 		{"one-two-three", "oneTwoThree"},
 		{"ice-9", "ice9"},
 
-		// Examples with acronyms
+		// Examples with abbreviations
 		{"is-www-connection", "isWWWConnection"},
 		{"http-to-https", "httpToHTTPS"},
 		{"is-http-or-https", "isHTTPOrHTTPS"},
@@ -107,6 +108,16 @@ func TestKebabToCamel(t *testing.T) {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}
+	}
+}
+
+// TestKebabToCamelError tests KebabToCamel function with wrong value.
+func TestKebabToCamelError(t *testing.T) {
+	var notKebab = "oneTwoThree"
+
+	_, err := KebabToCamel(notKebab)
+	if err == nil {
+		t.Error("not kebab to camel")
 	}
 }
 
@@ -121,7 +132,7 @@ func TestKebabToSnake(t *testing.T) {
 		{"one-two-three", "one_two_three"},
 		{"ice-9", "ice_9"},
 
-		// Examples with acronyms
+		// Examples with abbreviations
 		{"is-www-connection", "is_www_connection"},
 		{"http-to-https", "http_to_https"},
 		{"is-http-or-https", "is_http_or_https"},
@@ -132,6 +143,16 @@ func TestKebabToSnake(t *testing.T) {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}
+	}
+}
+
+// TestKebabToSnakeError tests KebabToSnake function with wrong value.
+func TestKebabToSnakeError(t *testing.T) {
+	var notKebab = "oneTwoThree"
+
+	_, err := KebabToSnake(notKebab)
+	if err == nil {
+		t.Error("not kebab to snake")
 	}
 }
 
@@ -146,7 +167,7 @@ func TestKebabToPascal(t *testing.T) {
 		{"one-two-three", "OneTwoThree"},
 		{"ice-9", "Ice9"},
 
-		// Examples with acronyms
+		// Examples with abbreviations
 		{"is-www-connection", "IsWWWConnection"},
 		{"http-to-https", "HTTPToHTTPS"},
 		{"is-http-or-https", "IsHTTPOrHTTPS"},
@@ -157,5 +178,15 @@ func TestKebabToPascal(t *testing.T) {
 			t.Errorf("test for %d is failed, "+
 				"expected %s but %s", i, s.result, r)
 		}
+	}
+}
+
+// TestKebabToPascalError tests KebabToPascal function with wrong value.
+func TestKebabToPascalError(t *testing.T) {
+	var notKebab = "oneTwoThree"
+
+	_, err := KebabToPascal(notKebab)
+	if err == nil {
+		t.Error("not kebab to pascal")
 	}
 }

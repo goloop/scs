@@ -7,6 +7,7 @@ import (
 )
 
 var (
+	camelPrep    = regexp.MustCompile("([0-9]+)")
 	camelHead    = regexp.MustCompile("(.)([A-Z][a-z]+)")
 	camelBody    = regexp.MustCompile("([a-z0-9])([A-Z])")
 	camelNumbers = regexp.MustCompile("([0-9]+)")
@@ -51,9 +52,10 @@ func CamelToKebab(camel string) (string, error) {
 		return "", fmt.Errorf("value %s isn't camelCase style", camel)
 	}
 
-	kebab := camelHead.ReplaceAllString(camel, "${1}-${2}")
+	kebab := camelPrep.ReplaceAllString(camel, "-${1}-")
+	kebab = camelHead.ReplaceAllString(kebab, "${1}-${2}")
 	kebab = camelBody.ReplaceAllString(kebab, "${1}-${2}")
-	return strings.ToLower(kebab), nil
+	return strings.ToLower(strings.Trim(kebab, "-")), nil
 }
 
 // CamelToPascal converts a camelCase-style string to PascalCase.
@@ -76,7 +78,8 @@ func CamelToSnake(camel string) (string, error) {
 		return "", fmt.Errorf("value %s isn't camelCase style", camel)
 	}
 
-	snake := camelHead.ReplaceAllString(camel, "${1}_${2}")
+	snake := camelPrep.ReplaceAllString(camel, "_${1}_")
+	snake = camelHead.ReplaceAllString(snake, "${1}_${2}")
 	snake = camelBody.ReplaceAllString(snake, "${1}_${2}")
-	return strings.ToLower(snake), nil
+	return strings.ToLower(strings.Trim(snake, "_")), nil
 }

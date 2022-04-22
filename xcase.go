@@ -11,7 +11,7 @@ var chunkLayout = regexp.MustCompile(`[^0-9a-zA-Z ]+`)
 // string by whitespace and returns a list of words ignoring empty elements.
 func getChunks(s string) []string {
 	return strings.FieldsFunc(
-		chunkLayout.ReplaceAllString(strings.ToLower(s), ""),
+		chunkLayout.ReplaceAllString(strings.ToLower(s), " "),
 		func(c rune) bool { return c == ' ' },
 	)
 }
@@ -21,12 +21,13 @@ func toUnited(s string, firstWordIsLower bool) string {
 	var result string
 
 	for i, chunk := range getChunks(s) {
+		// Chunk is always lowercase.
 		if i == 0 && firstWordIsLower {
 			result = chunk
 			continue
 		}
 
-		if v, ok := acronyms[chunk]; ok {
+		if v, ok := abbreviations[chunk]; ok {
 			result += v
 			continue
 		}

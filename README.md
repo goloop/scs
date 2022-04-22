@@ -8,7 +8,7 @@
 
 # SCS
 
-Package scs (String Case Style) module implements methods for converting string
+Package scs (String Case Style) implements methods for converting string
 case to various case styles: camelCase, kebab-case, PascalCase and snake_case.
 
 ## Installation

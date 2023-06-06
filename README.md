@@ -191,7 +191,7 @@ func main() {
 
 - **ToCamel**(s string) string
 
- ToCamel converts a string to camelCase. Unlike the StrToCamel function, if the source string already has a certain format, it will be correctly converted to camelCase.
+  ToCamel converts a string to camelCase. Unlike the StrToCamel function, if the source string already has a certain format, it will be correctly converted to camelCase.
 
 - **ToKebab**(s string) string
 

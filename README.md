@@ -1,10 +1,4 @@
-[//]: # (!!!Don't modify the README.md, use `make readme` to generate it!!!)
-
-
-[![Go Report Card](https://goreportcard.com/badge/github.com/goloop/scs)](https://goreportcard.com/report/github.com/goloop/scs) [![License](https://img.shields.io/badge/license-BSD-blue)](https://github.com/goloop/scs/blob/master/LICENSE) [![License](https://img.shields.io/badge/godoc-YES-green)](https://godoc.org/github.com/goloop/scs)
-
-*Version: v1.0.0*
-
+[![Go Report Card](https://goreportcard.com/badge/github.com/goloop/scs)](https://goreportcard.com/report/github.com/goloop/scs) [![License](https://img.shields.io/badge/license-MIT-brightgreen)](https://github.com/goloop/scs/blob/master/LICENSE) [![License](https://img.shields.io/badge/godoc-YES-green)](https://godoc.org/github.com/goloop/scs)
 
 # SCS
 
@@ -15,7 +9,9 @@ case to various case styles: camelCase, kebab-case, PascalCase and snake_case.
 
 To install this module use `go get` as:
 
-    $ go get -u github.com/goloop/scs
+```
+$ go get -u github.com/goloop/scs
+```
 
 ## Quick Start
 
@@ -26,48 +22,48 @@ To use this module import it as: `github.com/goloop/scs`
 Example:
 
 ```go
-    package main
+package main
 
-    import "github.com/goloop/scs"
+import "github.com/goloop/scs"
 
-    func main() {
-        var s string
+func main() {
+    var s string
 
-        // Simple text
-        s = "hello world"
-        scs.StrToCamel(s)  // helloWorld
-        scs.StrToPascal(s) // HelloWorld
-        scs.StrToSnake(s)  // hello_world
-        scs.StrToKebab(s)  // hello-world
+    // Simple text
+    s = "hello world"
+    scs.StrToCamel(s)  // helloWorld
+    scs.StrToPascal(s) // HelloWorld
+    scs.StrToSnake(s)  // hello_world
+    scs.StrToKebab(s)  // hello-world
 
-        // Text with abbreviations
-        s = "http to https"
-        scs.StrToCamel(s)  // httpToHTTPS
-        scs.StrToPascal(s) // HTTPToHTTPS
-        scs.StrToSnake(s)  // http_to_https
-        scs.StrToKebab(s)  // http-to-https
+    // Text with abbreviations
+    s = "http to https"
+    scs.StrToCamel(s)  // httpToHTTPS
+    scs.StrToPascal(s) // HTTPToHTTPS
+    scs.StrToSnake(s)  // http_to_https
+    scs.StrToKebab(s)  // http-to-https
 
-        // Converting
-        s = "http to https"
-        camel := scs.StrToCamel(s)            // httpToHTTPS
-        pascal, _ := scs.CamelToPascal(camel) // HTTPToHTTPS <nil>
-        kebab, _ := scs.PascalToKebab(pascal) // http-to-https <nil>
-        snake, _ := scs.KebabToSnake(kebab)   // http_to_https <nil>
+    // Converting
+    s = "http to https"
+    camel := scs.StrToCamel(s)            // httpToHTTPS
+    pascal, _ := scs.CamelToPascal(camel) // HTTPToHTTPS <nil>
+    kebab, _ := scs.PascalToKebab(pascal) // http-to-https <nil>
+    snake, _ := scs.KebabToSnake(kebab)   // http_to_https <nil>
 
-        // Use strings.ToUpper(snake) for convert to UPPER_SNAKE_CASE.
+    // Use strings.ToUpper(snake) for convert to UPPER_SNAKE_CASE.
 
-        scs.SnakeToPascal(snake) // HTTPToHTTPS <nil>
-        scs.CamelToKebab(camel)  // http-to-https <nil>
+    scs.SnakeToPascal(snake) // HTTPToHTTPS <nil>
+    scs.CamelToKebab(camel)  // http-to-https <nil>
 
-        // Errors
-        scs.CamelToSnake(kebab)  // value http-to-https isn't camelCase style
-        scs.PascalToCamel(camel) // value httpToHTTPS isn't PascalCase style
+    // Errors
+    scs.CamelToSnake(kebab)  // value http-to-https isn't camelCase style
+    scs.PascalToCamel(camel) // value httpToHTTPS isn't PascalCase style
 
-        // Convert anything to anything correctly
-        scs.ToCamel(snake)  // httpToHTTPS
-        scs.ToPascal(kebab) // HTTPToHTTPS
-        scs.ToSnake(s)      // http_to_https
-    }
+    // Convert anything to anything correctly
+    scs.ToCamel(snake)  // httpToHTTPS
+    scs.ToPascal(kebab) // HTTPToHTTPS
+    scs.ToSnake(s)      // http_to_https
+}
 ```
 
 ### Style objects
@@ -79,343 +75,207 @@ a second parameter as err when converting styles.
 Example:
 
 ```go
-    package main
+package main
 
-    import "github.com/goloop/scs"
+import "github.com/goloop/scs"
 
-    func main() {
-        var s string
+func main() {
+    var s string
 
-        // Simple text
-        s = "hello world"
-        snake, _ := scs.New(scs.Snake) // scs.New(scs.Snake, s)
+    // Simple text
+    s = "hello world"
+    snake, _ := scs.New(scs.Snake) // scs.New(scs.Snake, s)
 
-        snake.Eat(s)         // hello_world
-        snake.Set(s).Value() // hello_world
-        snake.IsCamel()      // false
-        snake.IsSnake()      // true
-        snake.Value()        // hello_world
+    snake.Eat(s)         // hello_world
+    snake.Set(s).Value() // hello_world
+    snake.IsCamel()      // false
+    snake.IsSnake()      // true
+    snake.Value()        // hello_world
 
-        camel := snake.CopyToCamel()
-        camel.IsSnake() // false
-        camel.IsCamel() // true
-        camel.Value()   // helloWorld
+    camel := snake.CopyToCamel()
+    camel.IsSnake() // false
+    camel.IsCamel() // true
+    camel.Value()   // helloWorld
 
-        // Text with abbreviations
-        s = "http to https"
-        pascal, _ := scs.New(scs.Pascal, s)
-        pascal.Value() // HTTPToHTTPS
+    // Text with abbreviations
+    s = "http to https"
+    pascal, _ := scs.New(scs.Pascal, s)
+    pascal.Value() // HTTPToHTTPS
 
-        kebab := pascal.CopyToKebab()
-        kebab.Value() // http-to-https
-    }
+    kebab := pascal.CopyToKebab()
+    kebab.Value() // http-to-https
+}
 ```
 
-## Usage
+## Functions
 
-#### func  CamelToKebab
+- **CamelToKebab**(camel string) (string, error)
 
-    func CamelToKebab(camel string) (string, error)
+  CamelToKebab converts a camelCase-style string to kebab-case. The conversion will be invalid if the input string is not camelCase style.
 
-CamelToKebab converts a camelCase-style string to kebab-case. The conversion
-will be invalid if the input string is not camelCase style.
+- **CamelToPascal**(camel string) (string, error)
 
-#### func  CamelToPascal
+  CamelToPascal converts a camelCase-style string to PascalCase. The conversion will be invalid if the input string is not camelCase style.
 
-    func CamelToPascal(camel string) (string, error)
+- **CamelToSnake**(camel string) (string, error)
 
-CamelToPascal converts a camelCase-style string to PascalCase. The conversion
-will be invalid if the input string is not camelCase style.
+  CamelToSnake converts a camelCase-style string to snake_case. The conversion will be invalid if the input string is not camelCase style.
 
-#### func  CamelToSnake
+- **KebabToCamel**(kebab string) (string, error)
 
-    func CamelToSnake(camel string) (string, error)
+  KebabToCamel converts a kebab-case-style string to camelCase. The conversion will be invalid if the input string is not kebab-case style.
 
-CamelToSnake converts a camelCase-style string to snake_case. The conversion
-will be invalid if the input string is not camelCase style.
+- **KebabToPascal**(kebab string) (string, error)
 
-#### func  KebabToCamel
+  KebabToPascal converts a kebab-case-style string to PascalCase. The conversion will be invalid if the input string is not kebab-case style.
 
-    func KebabToCamel(kebab string) (string, error)
+- **KebabToSnake**(kebab string) (string, error)
 
-KebabToCamel converts a kebab-case-style string to camelCase. The conversion
-will be invalid if the input string is not kebab-case style.
+  KebabToSnake converts a kebab-case-style string to snake_case. The conversion will be invalid if the input string is not kebab-case style.
 
-#### func  KebabToPascal
+- **PascalToCamel**(pascal string) (string, error)
 
-    func KebabToPascal(kebab string) (string, error)
+  PascalToCamel converts a PascalCase-style string to camelCase. The conversion will be invalid if the input string is not PascalCase style.
 
-KebabToPascal converts a kebab-case-style string to PascalCase. The conversion
-will be invalid if the input string is not kebab-case style.
+- **PascalToKebab**(pascal string) (string, error)
 
-#### func  KebabToSnake
+  PascalToKebab converts a PascalCase-style string to kebab-case. The conversion will be invalid if the input string is not PascalCase style.
 
-    func KebabToSnake(kebab string) (string, error)
+- **PascalToSnake**(pascal string) (string, error)
 
-KebabToSnake converts a kebab-case-style string to snake_case. The conversion
-will be invalid if the input string is not kebab-case style.
+  PascalToSnake converts a PascalCase-style string to snake_case. The conversion will be invalid if the input string is not PascalCase style.
 
-#### func  PascalToCamel
+- **SnakeToCamel**(snake string) (string, error)
 
-    func PascalToCamel(pascal string) (string, error)
+  SnakeToCamel converts a snake_case-style string to camelCase. The conversion will be invalid if the input string is not snake_case style.
 
-PascalToCamel converts a PascalCase-style string to camelCase. The conversion
-will be invalid if the input string is not PascalCase style.
+- **SnakeToKebab**(snake string) (string, error)
 
-#### func  PascalToKebab
+  SnakeToKebab converts a snake_case-style string to kebab-case. The conversion will be invalid if the input string is not snake_case style.
 
-    func PascalToKebab(pascal string) (string, error)
+- **SnakeToPascal**(snake string) (string, error)
 
-PascalToKebab converts a PascalCase-style string to kebab-case. The conversion
-will be invalid if the input string is not PascalCase style.
+  SnakeToPascal converts a snake_case-style string to PascalCase. The conversion will be invalid if the input string is not snake_case style.
 
-#### func  PascalToSnake
+- **StrIsCamel**(s string) bool
 
-    func PascalToSnake(pascal string) (string, error)
+  StrIsCamel returns true if string is camelCase.
 
-PascalToSnake converts a PascalCase-style string to snake_case. The conversion
-will be invalid if the input string is not PascalCase style.
+- **StrIsKebab**(s string) bool
 
-#### func  SnakeToCamel
+  StrIsKebab returns true if string is kebab-case.
 
-    func SnakeToCamel(snake string) (string, error)
+- **StrIsPascal**(s string) bool
 
-SnakeToCamel converts a snake_case-style string to camelCase. The conversion
-will be invalid if the input string is not snake_case style.
+  StrIsPascal returns true if string is PascalCase.
 
-#### func  SnakeToKebab
+- **StrIsSnake**(s string) bool
 
-    func SnakeToKebab(snake string) (string, error)
+  StrIsSnake returns true if string is snake_case.
 
-SnakeToKebab converts a snake_case-style string to kebab-case. The conversion
-will be invalid if the input string is not snake_case style.
+- **StrToCamel**(s string) string
 
-#### func  SnakeToPascal
+  StrToCamel converts a string to camelCase.
 
-    func SnakeToPascal(snake string) (string, error)
+- **StrToKebab**(s string) string
 
-SnakeToPascal converts a snake_case-style string to PascalCase. The conversion
-will be invalid if the input string is not snake_case style.
+  StrToKebab converts a string to kebab-case.
 
-#### func  StrIsCamel
+- **StrToPascal**(s string) string
 
-    func StrIsCamel(s string) bool
+  StrToPascal converts a string to PascalCase.
 
-StrIsCamel returns true if string is camelCase.
+- **StrToSnake**(s string) string
 
-#### func  StrIsKebab
+  StrToSnake converts a string to snake_case.
 
-    func StrIsKebab(s string) bool
+- **ToCamel**(s string) string
 
-StrIsKebab returns true if string is kebab-case.
+ ToCamel converts a string to camelCase. Unlike the StrToCamel function, if the source string already has a certain format, it will be correctly converted to camelCase.
 
-#### func  StrIsPascal
+- **ToKebab**(s string) string
 
-    func StrIsPascal(s string) bool
+  ToKebab converts a string to kebab-case. Unlike the StrToKebab function, if the source string already has a certain format, it will be correctly converted to kebab-case.
 
-StrIsPascal returns true if string is PascalCase.
+- **ToPascal**(s string) string
 
-#### func  StrIsSnake
+  ToPascal converts a string to PascalCase. Unlike the StrToPascal function, if the source string already has a certain format, it will be correctly converted to PascalCase.
 
-    func StrIsSnake(s string) bool
+- **ToSnake**(s string) string
 
-StrIsSnake returns true if string is snake_case.
+  ToSnake converts a string to snake_case. Unlike the StrToSnake function, if the source string already has a certain format, it will be correctly converted to snake_case.
 
-#### func  StrToCamel
+- **Version**() string
 
-    func StrToCamel(s string) string
+  Version returns the version of the module.
 
-StrToCamel converts a string to camelCase.
+- **New**(style CaseStyle, value ...string) (*StringCaseStyle, error)
 
-#### func  StrToKebab
+  New returns a pointer to a string case style object. The style defines the string case style. a string (or list of strings) to format.
 
-    func StrToKebab(s string) string
 
-StrToKebab converts a string to kebab-case.
+## StringCaseStyle Object
 
-#### func  StrToPascal
+- **CopyToCamel**() (*StringCaseStyle, error)
 
-    func StrToPascal(s string) string
+  CopyToCamel converts an object to Camel Type StringCaseStyle and returns new pointer to it.
 
-StrToPascal converts a string to PascalCase.
+- **CopyToKebab**() (*StringCaseStyle, error)
 
-#### func  StrToSnake
+  CopyToKebab converts an object to Kebab Type StringCaseStyle and returns new pointer to it.
 
-    func StrToSnake(s string) string
+- **CopyToPascal**() (*StringCaseStyle, error)
 
-StrToSnake converts a string to snake_case.
+  CopyToPascal converts an object to Pascal Type StringCaseStyle and returns new pointer to it.
 
-#### func  ToCamel
+- **CopyToSnake**() (*StringCaseStyle, error)
 
-    func ToCamel(s string) string
+  CopyToSnake converts an object to Snake Type StringCaseStyle and returns new pointer to it.
 
-ToCamel converts a string to camelCase. Unlike the StrToCamel function, if the
-source string already has a certain format, it will be correctly converted to
-camelCase.
+- **Eat**(s string) string
 
-#### func  ToKebab
+  Eat converts a string to the specified style and stores it as an object value.
 
-    func ToKebab(s string) string
+- **IsCamel**() bool
 
-ToKebab converts a string to kebab-case. Unlike the StrToKebab function, if the
-source string already has a certain format, it will be correctly converted to
-kebab-case.
+  IsCamel returns true if object contains camelCase value.
 
-#### func  ToPascal
+- **IsKebab**() bool
 
-    func ToPascal(s string) string
+  IsKebab returns true if object contains kebab-case value.
 
-ToPascal converts a string to PascalCase. Unlike the StrToPascal function, if
-the source string already has a certain format, it will be correctly converted
-to PascalCase.
+- **IsPascal**() bool
 
-#### func  ToSnake
+  IsPascal returns true if object contains PascalCase value.
 
-    func ToSnake(s string) string
+- **IsSnake**() bool
 
-ToSnake converts a string to snake_case. Unlike the StrToSnake function, if the
-source string already has a certain format, it will be correctly converted to
-snake_case.
+  IsSnake returns true if object contains snake-case value.
 
-#### func  Version
+- **IsValid**() bool
 
-    func Version() string
+  IsValid returns true if StringCaseStyle is valid.
 
-Version returns the version of the module.
+- **Set**(s string) *StringCaseStyle
 
-#### type CaseStyle
+  Set sets new value.
 
-    type CaseStyle uint8
+- **ToCamel**() error
 
+  ToCamel converts an object to Camel Type StringCaseStyle.
 
-CaseStyle is string case style type.
+- **ToKebab**() error
 
-    const (
-    	// Camel is constant that characterizes string case style as camelCase.
-    	Camel CaseStyle = 1 << iota
+  ToKebab converts an object to Kebab Type StringCaseStyle.
 
-    	// Kebab is constant that characterizes string case style as kebab-case.
-    	Kebab
+- **ToPascal**() error
 
-    	// Pascal is constant that characterizes string case style as PascalCase.
-    	Pascal
+  ToPascal converts an object to Pascal Type StringCaseStyle.
 
-    	// Snake is constant that characterizes string case style as snake_case.
-    	Snake
-    )
+- **ToSnake**() error
 
+  ToSnake converts an object to Snake Type StringCaseStyle.
 
-#### type StringCaseStyle
+- **Value**() string
 
-    type StringCaseStyle struct {}
-
-
-StringCaseStyle is object of the string case style (SCS). It can be created
-correctly through the New function only.
-
-#### func  New
-
-    func New(style CaseStyle, value ...string) (*StringCaseStyle, error)
-
-New returns a pointer to a string case style object. The style defines the
-string case style. a string (or list of strings) to format.
-
-#### func (*StringCaseStyle) CopyToCamel
-
-    func (o *StringCaseStyle) CopyToCamel() (*StringCaseStyle, error)
-
-CopyToCamel converts an object to Camel Type StringCaseStyle and returns new
-pointer to it.
-
-#### func (*StringCaseStyle) CopyToKebab
-
-    func (o *StringCaseStyle) CopyToKebab() (*StringCaseStyle, error)
-
-CopyToKebab converts an object to Kebab Type StringCaseStyle and returns new
-pointer to it.
-
-#### func (*StringCaseStyle) CopyToPascal
-
-    func (o *StringCaseStyle) CopyToPascal() (*StringCaseStyle, error)
-
-CopyToPascal converts an object to Pascal Type StringCaseStyle and returns new
-pointer to it.
-
-#### func (*StringCaseStyle) CopyToSnake
-
-    func (o *StringCaseStyle) CopyToSnake() (*StringCaseStyle, error)
-
-CopyToSnake converts an object to Snake Type StringCaseStyle and returns new
-pointer to it.
-
-#### func (*StringCaseStyle) Eat
-
-    func (o *StringCaseStyle) Eat(s string) string
-
-Eat converts a string to the specified style and stores it as an object value.
-
-#### func (*StringCaseStyle) IsCamel
-
-    func (o *StringCaseStyle) IsCamel() bool
-
-IsCamel returns true if object contains camelCase value.
-
-#### func (*StringCaseStyle) IsKebab
-
-    func (o *StringCaseStyle) IsKebab() bool
-
-IsKebab returns true if object contains kebab-case value.
-
-#### func (*StringCaseStyle) IsPascal
-
-    func (o *StringCaseStyle) IsPascal() bool
-
-IsPascal returns true if object contains PascalCase value.
-
-#### func (*StringCaseStyle) IsSnake
-
-    func (o *StringCaseStyle) IsSnake() bool
-
-IsSnake returns true if object contains snake-case value.
-
-#### func (*StringCaseStyle) IsValid
-
-    func (o *StringCaseStyle) IsValid() bool
-
-IsValid returns true if StringCaseStyle is valid.
-
-#### func (*StringCaseStyle) Set
-
-    func (o *StringCaseStyle) Set(s string) *StringCaseStyle
-
-Set sets new value.
-
-#### func (*StringCaseStyle) ToCamel
-
-    func (o *StringCaseStyle) ToCamel() error
-
-ToCamel converts an object to Camel Type StringCaseStyle.
-
-#### func (*StringCaseStyle) ToKebab
-
-    func (o *StringCaseStyle) ToKebab() error
-
-ToKebab converts an object to Kebab Type StringCaseStyle.
-
-#### func (*StringCaseStyle) ToPascal
-
-    func (o *StringCaseStyle) ToPascal() error
-
-ToPascal converts an object to Pascal Type StringCaseStyle.
-
-#### func (*StringCaseStyle) ToSnake
-
-    func (o *StringCaseStyle) ToSnake() error
-
-ToSnake converts an object to Snake Type StringCaseStyle.
-
-#### func (*StringCaseStyle) Value
-
-    func (o *StringCaseStyle) Value() string
-
-Value returns value of the object.
+  Value returns value of the object.

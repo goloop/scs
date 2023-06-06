@@ -3,6 +3,46 @@ package scs
 // The abbreviations contains a list of words that has
 // a specific format in Camel and Pascal Case styles.
 var abbreviations = map[string]string{
+	// Official: https://github.com/golang/lint/blob/master/lint.go#L770
+	// "acl":   "ACL",
+	// "api":   "API",
+	// "ascii": "ASCII",
+	// "cpu":   "CPU",
+	// "css":   "CSS",
+	// "dns":   "DNS",
+	// "eof":   "EOF",
+	// "guid":  "GUID",
+	// "html":  "HTML",
+	// "http":  "HTTP",
+	// "https": "HTTPS",
+	// "id":    "ID",
+	// "ip":    "IP",
+	// "json":  "JSON",
+	// "lhs":   "LHS",
+	// "qps":   "QPS",
+	// "ram":   "RAM",
+	// "rhs":   "RHS",
+	// "rpc":   "RPC",
+	// "sla":   "SLA",
+	// "smtp":  "SMTP",
+	// "sql":   "SQL",
+	// "ssh":   "SSH",
+	// "tcp":   "TCP",
+	// "tls":   "TLS",
+	// "ttl":   "TTL",
+	// "udp":   "UDP",
+	// "ui":    "UI",
+	// "uid":   "UID",
+	// "uuid":  "UUID",
+	// "uri":   "URI",
+	// "url":   "URL",
+	// "utf8":  "UTF8",
+	// "vm":    "VM",
+	// "xml":   "XML",
+	// "xmpp":  "XMPP",
+	// "xsrf":  "XSRF",
+	// "xss":   "XSS",
+
 	"5g":      "5G",      // 5th generation
 	"ack":     "ACK",     // Acknowledgement
 	"acl":     "ACL",     // Access Control List

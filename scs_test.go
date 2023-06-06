@@ -11,7 +11,7 @@ func TestVersion(t *testing.T) {
 
 // TestNew tests New function.
 func TestNew(t *testing.T) {
-	var test = struct {
+	test := struct {
 		example string
 		camel   string
 		kebab   string
@@ -139,7 +139,7 @@ func TestObjPascalCopyTo(t *testing.T) {
 
 // TestObjPascalToCamel tests Pascal -> ToPascal method of the object.
 func TestObjPascalToCamel(t *testing.T) {
-	var expected = "http2HTTPSConvertor"
+	expected := "http2HTTPSConvertor"
 
 	obj, _ := New(Pascal, "http 2 https convertor")
 	err := obj.ToCamel()
@@ -179,7 +179,7 @@ func TestObjSnakeCopyTo(t *testing.T) {
 
 // TestObjSnakeToKebab tests Snake -> ToKebab method of the object.
 func TestObjSnakeToKebab(t *testing.T) {
-	var expected = "http-2-https-convertor"
+	expected := "http-2-https-convertor"
 
 	obj, _ := New(Snake, "http 2 https convertor")
 	err := obj.ToKebab()
@@ -219,7 +219,7 @@ func TestObjCamelCopyTo(t *testing.T) {
 
 // TestObjCamleToPascal tests Camel -> ToPascal method of the object.
 func TestObjCamelToPascal(t *testing.T) {
-	var expected = "HTTP2HTTPSConvertor"
+	expected := "HTTP2HTTPSConvertor"
 
 	obj, _ := New(Camel, "http 2 https convertor")
 	err := obj.ToPascal()
@@ -259,7 +259,7 @@ func TestObjKebabCopyTo(t *testing.T) {
 
 // TestObjKebabToSnake tests Kebab -> ToSnake method of the object.
 func TestObjKebabToSnake(t *testing.T) {
-	var expected = "http_2_https_convertor"
+	expected := "http_2_https_convertor"
 
 	obj, _ := New(Kebab, "http 2 https convertor")
 	err := obj.ToSnake()
@@ -301,6 +301,14 @@ func TestObjIsSnake(t *testing.T) {
 	snake, _ := New(Snake)
 	if !snake.IsSnake() {
 		t.Error("test for IsSnake() is failed, expected true but false")
+	}
+}
+
+// TestObjEat tests Set method of the object.
+func TestObjEat(t *testing.T) {
+	snake, _ := New(Snake)
+	if snake.Eat("hello world") != "hello_world" {
+		t.Error("conversion failed")
 	}
 }
 

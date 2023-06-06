@@ -14,3 +14,5 @@
 # Dependency directories
 # vendor/
 .vscode/
+
+coverage.out

@@ -4,7 +4,7 @@ import "testing"
 
 // TestStrIsCamel tests StrIsCamel function.
 func TestStrIsCamel(t *testing.T) {
-	var tests = []struct {
+	tests := []struct {
 		value  string
 		result bool
 	}{
@@ -35,7 +35,7 @@ func TestStrIsCamel(t *testing.T) {
 
 // TestStrToCamel tests StrToCamel function.
 func TestStrToCamel(t *testing.T) {
-	var tests = []struct {
+	tests := []struct {
 		value  string
 		result string
 	}{
@@ -60,7 +60,7 @@ func TestStrToCamel(t *testing.T) {
 
 // TestToCamel tests ToCamel function.
 func TestToCamel(t *testing.T) {
-	var tests = []struct {
+	tests := []struct {
 		value  string
 		result string
 	}{
@@ -86,7 +86,7 @@ func TestToCamel(t *testing.T) {
 
 // TestCamelToKebab tests CamelToKebab function.
 func TestCamelToKebab(t *testing.T) {
-	var tests = []struct {
+	tests := []struct {
 		value  string
 		result string
 	}{
@@ -111,7 +111,7 @@ func TestCamelToKebab(t *testing.T) {
 
 // TestCamelToKebabError tests CamelToKebab function with wrong value.
 func TestCamelToKebabError(t *testing.T) {
-	var notCamel = "one-two-three"
+	notCamel := "one-two-three"
 
 	_, err := CamelToKebab(notCamel)
 	if err == nil {
@@ -121,7 +121,7 @@ func TestCamelToKebabError(t *testing.T) {
 
 // TestCamelToPascal tests CamelToPascal function.
 func TestCamelToPascal(t *testing.T) {
-	var tests = []struct {
+	tests := []struct {
 		value  string
 		result string
 	}{
@@ -146,7 +146,7 @@ func TestCamelToPascal(t *testing.T) {
 
 // TestCamelToPascalError tests CamelToPascal function with wrong value.
 func TestCamelToPascalError(t *testing.T) {
-	var notCamel = "one-two-three"
+	notCamel := "one-two-three"
 
 	_, err := CamelToPascal(notCamel)
 	if err == nil {
@@ -156,7 +156,7 @@ func TestCamelToPascalError(t *testing.T) {
 
 // TestCamelToSnake tests CamelToSnake function.
 func TestCamelToSnake(t *testing.T) {
-	var tests = []struct {
+	tests := []struct {
 		value  string
 		result string
 	}{
@@ -181,7 +181,7 @@ func TestCamelToSnake(t *testing.T) {
 
 // TestCamelToSnakeError tests CamelToSnake function with wrong value.
 func TestCamelToSnakeError(t *testing.T) {
-	var notCamel = "one-two-three"
+	notCamel := "one-two-three"
 
 	_, err := CamelToSnake(notCamel)
 	if err == nil {

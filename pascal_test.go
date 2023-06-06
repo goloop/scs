@@ -4,7 +4,7 @@ import "testing"
 
 // TestStrIsPascal tests StrIsPascal function.
 func TestStrIsPascal(t *testing.T) {
-	var tests = []struct {
+	tests := []struct {
 		value  string
 		result bool
 	}{
@@ -33,9 +33,31 @@ func TestStrIsPascal(t *testing.T) {
 	}
 }
 
+// TestStrIsPascalExample tests StrIsPascal function.
+func TestStrIsPascalExample(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		input    string
+		expected bool
+	}{
+		{"HelloWorld", true},
+		{"helloWorld", false},
+		{"hello_world", false},
+		{"Hello_World", false},
+	}
+
+	for _, test := range tests {
+		result := StrIsPascal(test.input)
+		if result != test.expected {
+			t.Errorf("StrIsPascal(%q) = %v, expected %v", test.input, result, test.expected)
+		}
+	}
+}
+
 // TestStrToPascal tests StrToPascal function.
 func TestStrToPascal(t *testing.T) {
-	var tests = []struct {
+	tests := []struct {
 		value  string
 		result string
 	}{
@@ -58,9 +80,33 @@ func TestStrToPascal(t *testing.T) {
 	}
 }
 
+// TestStrToPascalExample tests StrToPascal function.
+func TestStrToPascalExample(t *testing.T) {
+	result := StrToPascal("hello_world")
+	expected := "HelloWorld"
+	if result != expected {
+		t.Errorf("StrToPascal(\"hello_world\") returned %s, expected %s",
+			result, expected)
+	}
+
+	result = StrToPascal("hello world")
+	expected = "HelloWorld"
+	if result != expected {
+		t.Errorf("StrToPascal(\"hello world\") returned %s, expected %s",
+			result, expected)
+	}
+
+	result = StrToPascal("helloWorld")
+	expected = "Helloworld"
+	if result != expected {
+		t.Errorf("StrToPascal(\"helloWorld\") returned %s, expected %s",
+			result, expected)
+	}
+}
+
 // TestToPascal tests ToPascal function.
 func TestToPascal(t *testing.T) {
-	var tests = []struct {
+	tests := []struct {
 		value  string
 		result string
 	}{
@@ -84,9 +130,52 @@ func TestToPascal(t *testing.T) {
 	}
 }
 
+// TestToPascalExample tests ToPascal function.
+func TestToPascalExample(t *testing.T) {
+	t.Run("Converts snake_case to PascalCase", func(t *testing.T) {
+		result := ToPascal("hello_world")
+		expected := "HelloWorld"
+		if result != expected {
+			t.Errorf("Expected %q, but got %q", expected, result)
+		}
+	})
+
+	t.Run("Converts kebab-case to PascalCase", func(t *testing.T) {
+		result := ToPascal("hello-world")
+		expected := "HelloWorld"
+		if result != expected {
+			t.Errorf("Expected %q, but got %q", expected, result)
+		}
+	})
+
+	t.Run("Converts camelCase to PascalCase", func(t *testing.T) {
+		result := ToPascal("helloWorld")
+		expected := "HelloWorld"
+		if result != expected {
+			t.Errorf("Expected %q, but got %q", expected, result)
+		}
+	})
+
+	t.Run("Handles strings already in PascalCase", func(t *testing.T) {
+		result := ToPascal("HelloWorld")
+		expected := "HelloWorld"
+		if result != expected {
+			t.Errorf("Expected %q, but got %q", expected, result)
+		}
+	})
+
+	t.Run("Handles strings with alphanumeric characters", func(t *testing.T) {
+		result := ToPascal("helloWorld123")
+		expected := "HelloWorld123"
+		if result != expected {
+			t.Errorf("Expected %q, but got %q", expected, result)
+		}
+	})
+}
+
 // TestPascalToKebab tests PascalToKebab function.
 func TestPascalToKebab(t *testing.T) {
-	var tests = []struct {
+	tests := []struct {
 		value  string
 		result string
 	}{
@@ -109,9 +198,56 @@ func TestPascalToKebab(t *testing.T) {
 	}
 }
 
+// TestPascalToKebabExample tests PascalToKebab function.
+func TestPascalToKebabExample(t *testing.T) {
+	t.Run("Converts PascalCase to kebab-case", func(t *testing.T) {
+		result, err := PascalToKebab("HelloWorld")
+		expected := "hello-world"
+		if err != nil {
+			t.Errorf("Unexpected error: %v", err)
+		}
+		if result != expected {
+			t.Errorf("Expected %q, but got %q", expected, result)
+		}
+	})
+
+	t.Run("Handles PascalCase with numbers", func(t *testing.T) {
+		result, err := PascalToKebab("HelloWorld123")
+		expected := "hello-world-123"
+		if err != nil {
+			t.Errorf("Unexpected error: %v", err)
+		}
+		if result != expected {
+			t.Errorf("Expected %q, but got %q", expected, result)
+		}
+	})
+
+	t.Run("Handles single-word PascalCase", func(t *testing.T) {
+		result, err := PascalToKebab("Hello")
+		expected := "hello"
+		if err != nil {
+			t.Errorf("Unexpected error: %v", err)
+		}
+		if result != expected {
+			t.Errorf("Expected %q, but got %q", expected, result)
+		}
+	})
+
+	t.Run("Handles non-PascalCase input", func(t *testing.T) {
+		result, err := PascalToKebab("helloWorld")
+		expected := ""
+		if err == nil {
+			t.Error("Expected an error, but got nil")
+		}
+		if result != expected {
+			t.Errorf("Expected %q, but got %q", expected, result)
+		}
+	})
+}
+
 // TestPascalToKebabError tests PascalToKebab function with wrong value.
 func TestPascalToKebabError(t *testing.T) {
-	var notPascal = "one_two_three"
+	notPascal := "one_two_three"
 
 	_, err := PascalToKebab(notPascal)
 	if err == nil {
@@ -121,7 +257,7 @@ func TestPascalToKebabError(t *testing.T) {
 
 // TestPascalToCamel tests PascalToCamel function.
 func TestPascalToCamel(t *testing.T) {
-	var tests = []struct {
+	tests := []struct {
 		value  string
 		result string
 	}{
@@ -146,7 +282,7 @@ func TestPascalToCamel(t *testing.T) {
 
 // TestPascalToCamelError tests PascalToCamel function with wrong value.
 func TestPascalToCamelError(t *testing.T) {
-	var notPascal = "one_two_three"
+	notPascal := "one_two_three"
 
 	_, err := PascalToCamel(notPascal)
 	if err == nil {
@@ -156,7 +292,7 @@ func TestPascalToCamelError(t *testing.T) {
 
 // TestPascalToSnake tests PascalToSnake function.
 func TestPascalToSnake(t *testing.T) {
-	var tests = []struct {
+	tests := []struct {
 		value  string
 		result string
 	}{
@@ -181,7 +317,7 @@ func TestPascalToSnake(t *testing.T) {
 
 // TestPascalToSnakeError tests PascalToSnake function with wrong value.
 func TestPascalToSnakeError(t *testing.T) {
-	var notPascal = "one_two_three"
+	notPascal := "one_two_three"
 
 	_, err := PascalToSnake(notPascal)
 	if err == nil {

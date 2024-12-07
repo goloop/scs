@@ -1,21 +1,59 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/goloop/scs)](https://goreportcard.com/report/github.com/goloop/scs) [![License](https://img.shields.io/badge/license-MIT-brightgreen)](https://github.com/goloop/scs/blob/master/LICENSE) [![License](https://img.shields.io/badge/godoc-YES-green)](https://godoc.org/github.com/goloop/scs) [![Stay with Ukraine](https://img.shields.io/static/v1?label=Stay%20with&message=Ukraine%20♥&color=ffD700&labelColor=0057B8&style=flat)](https://u24.gov.ua/)
 
-# scs
+# scs - String Case Style for Go
 
-Package scs (String Case Style) implements methods for converting string
-case to various case styles: camelCase, kebab-case, PascalCase and snake_case.
+Package scs (String Case Style) provides robust string case conversion utilities for Go applications. It supports conversion between camelCase, kebab-case, PascalCase, and snake_case formats.
+
+## Features
+
+- Convert between four common case styles:
+  - camelCase
+  - kebab-case
+  - PascalCase
+  - snake_case
+- Two usage approaches:
+  - Direct conversion functions
+  - Object-oriented style with chainable methods
+- Proper handling of:
+  - Abbreviations (e.g., HTTP, API)
+  - Numbers
+  - Special characters
+- Thread-safe functions
+- Comprehensive error handling
+- Zero dependencies
 
 ## Installation
 
-To install this module use `go get` as:
-
-```
-$ go get -u github.com/goloop/scs
+```bash
+go get -u github.com/goloop/scs
 ```
 
 ## Quick Start
 
 To use this module import it as: `github.com/goloop/scs`
+
+```go
+package main
+
+import (
+    "fmt"
+    "github.com/goloop/scs"
+)
+
+func main() {
+    // Direct conversion.
+    kebab := scs.StrToKebab("HelloWorld")  // hello-world
+    camel := scs.StrToCamel("hello-world") // helloWorld
+
+    // Object-oriented approach.
+    style, _ := scs.New(scs.Snake, "HelloWorld")
+    fmt.Println(style.Value())  // hello_world
+
+    // Chain conversions.
+    style.ToCamel().ToKebab()
+    fmt.Println(style.Value())  // hello-world
+}
+```
 
 ### Conversion functions
 
@@ -279,3 +317,11 @@ func main() {
 - **Value**() string
 
   Value returns value of the object.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

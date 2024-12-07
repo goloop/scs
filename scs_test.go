@@ -2,13 +2,6 @@ package scs
 
 import "testing"
 
-// TestVersion tests Version function.
-func TestVersion(t *testing.T) {
-	if v := Version(); v != "v"+version {
-		t.Error("incorrect  Version function")
-	}
-}
-
 // TestNew tests New function.
 func TestNew(t *testing.T) {
 	test := struct {

@@ -1,19 +1,19 @@
 goos: linux
 goarch: arm64
 pkg: github.com/goloop/scs
-BenchmarkStrToCamel-6                   	 1464390	       818.5 ns/op	     225 B/op	       9 allocs/op
-BenchmarkStrToKebab-6                   	 1627546	       743.0 ns/op	     209 B/op	       8 allocs/op
-BenchmarkStrToPascal-6                  	 1338722	       898.9 ns/op	     241 B/op	      10 allocs/op
-BenchmarkStrToSnake-6                   	 1630348	       735.2 ns/op	     209 B/op	       8 allocs/op
-BenchmarkCamelToKebab-6                 	  404264	      2771 ns/op	     393 B/op	      16 allocs/op
-BenchmarkKebabToPascal-6                	  482278	      2335 ns/op	     346 B/op	      18 allocs/op
-BenchmarkPascalToSnake-6                	  420955	      2741 ns/op	     393 B/op	      16 allocs/op
-BenchmarkSnakeToCamel-6                 	  483230	      2258 ns/op	     329 B/op	      17 allocs/op
-BenchmarkStrIsCamel-6                   	 3212403	       372.3 ns/op	      24 B/op	       1 allocs/op
-BenchmarkStrIsKebab-6                   	 3515384	       340.9 ns/op	      24 B/op	       1 allocs/op
-BenchmarkStrIsPascal-6                  	 3178677	       377.8 ns/op	      24 B/op	       1 allocs/op
-BenchmarkStrIsSnake-6                   	 3474710	       343.5 ns/op	      24 B/op	       1 allocs/op
-BenchmarkNewStringCaseStyle-6           	 1365064	       848.1 ns/op	     273 B/op	      10 allocs/op
-BenchmarkStringCaseStyleConversions-6   	  111622	     10466 ns/op	    1610 B/op	      69 allocs/op
+BenchmarkStrToCamel-6                   	 2691157	       453.7 ns/op	     176 B/op	       8 allocs/op
+BenchmarkStrToKebab-6                   	 3258315	       350.0 ns/op	     160 B/op	       7 allocs/op
+BenchmarkStrToPascal-6                  	 2429904	       515.6 ns/op	     192 B/op	       9 allocs/op
+BenchmarkStrToSnake-6                   	 3118707	       360.5 ns/op	     160 B/op	       7 allocs/op
+BenchmarkCamelToKebab-6                 	  397190	      2888 ns/op	     393 B/op	      16 allocs/op
+BenchmarkKebabToPascal-6                	  554179	      1976 ns/op	     298 B/op	      17 allocs/op
+BenchmarkPascalToSnake-6                	  404192	      2888 ns/op	     394 B/op	      16 allocs/op
+BenchmarkSnakeToCamel-6                 	  590870	      1953 ns/op	     281 B/op	      16 allocs/op
+BenchmarkStrIsCamel-6                   	 3108358	       381.0 ns/op	      24 B/op	       1 allocs/op
+BenchmarkStrIsKebab-6                   	 3426955	       345.5 ns/op	      24 B/op	       1 allocs/op
+BenchmarkStrIsPascal-6                  	 3081224	       382.7 ns/op	      24 B/op	       1 allocs/op
+BenchmarkStrIsSnake-6                   	 3411319	       349.3 ns/op	      24 B/op	       1 allocs/op
+BenchmarkNewStringCaseStyle-6           	 2496402	       477.5 ns/op	     224 B/op	       9 allocs/op
+BenchmarkStringCaseStyleConversions-6   	  122257	      9776 ns/op	    1448 B/op	      65 allocs/op
 PASS
-ok  	github.com/goloop/scs	22.232s
+ok  	github.com/goloop/scs	20.354s

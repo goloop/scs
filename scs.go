@@ -302,13 +302,30 @@ func (o *StringCaseStyle) CopyToKebab() (*StringCaseStyle, error) {
 
 // ToKebab converts an object to Kebab Type StringCaseStyle.
 func (o *StringCaseStyle) ToKebab() error {
-	obj, err := o.CopyToKebab()
-	o.style = obj.style
-	o.value = obj.value
-	o.do = obj.do
-	o.isValid = obj.isValid
+	if o.style == Kebab {
+		return nil
+	}
 
-	return err
+	var newValue string
+	var err error
+
+	switch o.style {
+	case Camel:
+		newValue, err = CamelToKebab(o.value)
+	case Pascal:
+		newValue, err = PascalToKebab(o.value)
+	case Snake:
+		newValue, err = SnakeToKebab(o.value)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	o.value = newValue
+	o.style = Kebab
+	o.do = StrToKebab
+	return nil
 }
 
 // CopyToPascal converts an object to Pascal Type StringCaseStyle
@@ -340,13 +357,30 @@ func (o *StringCaseStyle) CopyToPascal() (*StringCaseStyle, error) {
 
 // ToPascal converts an object to Pascal Type StringCaseStyle.
 func (o *StringCaseStyle) ToPascal() error {
-	obj, err := o.CopyToPascal()
-	o.style = obj.style
-	o.value = obj.value
-	o.do = obj.do
-	o.isValid = obj.isValid
+	if o.style == Pascal {
+		return nil
+	}
 
-	return err
+	var newValue string
+	var err error
+
+	switch o.style {
+	case Camel:
+		newValue, err = CamelToPascal(o.value)
+	case Kebab:
+		newValue, err = KebabToPascal(o.value)
+	case Snake:
+		newValue, err = SnakeToPascal(o.value)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	o.value = newValue
+	o.style = Pascal
+	o.do = StrToPascal
+	return nil
 }
 
 // CopyToSnake converts an object to Snake Type StringCaseStyle

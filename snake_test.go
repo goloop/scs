@@ -25,12 +25,21 @@ func TestStrIsSnake(t *testing.T) {
 		{"HTTPToHTTPS", false},
 		{"http_to_https", true},
 		{"http-to-https", false},
+
+		// The presence of a separator at the end and at
+		// the beginning of the variable name.
+		{"_one", false},
+		{"one_", false},
+		{"_one_", false},
+		{"_one_two_three_", true},
+		{"one_two_three_", true},
+		{"_one_two_three", true},
 	}
 
-	for i, s := range tests {
+	for _, s := range tests {
 		if r := StrIsSnake(s.value); s.result != r {
-			t.Errorf("test for %d is failed, "+
-				"expected %t but %t", i, s.result, r)
+			t.Errorf("test for `%s` is failed, "+
+				"expected %t but %t", s.value, s.result, r)
 		}
 	}
 }

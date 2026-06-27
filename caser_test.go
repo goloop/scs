@@ -27,6 +27,11 @@ func TestCaserWithAcronyms(t *testing.T) {
 		// Title keeps spaces between upper-cased acronyms.
 		{c.ToTitle, "ToTitle", "user id", "User ID"},
 
+		// Sentence capitalizes only the first word, but still upper-cases
+		// initialisms wherever they appear.
+		{c.ToSentence, "ToSentence", "get http url now", "Get HTTP URL now"},
+		{c.ToSentence, "ToSentence", "id of user", "ID of user"},
+
 		// Separated styles ignore the acronym set entirely.
 		{c.ToSnake, "ToSnake", "HTTPServer", "http_server"},
 		{c.ToKebab, "ToKebab", "userID", "user-id"},

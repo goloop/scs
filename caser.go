@@ -113,6 +113,36 @@ func (c *Caser) ToPascal(s string) string {
 	return b.String()
 }
 
+// acr returns the all-caps form of an already-lowercased word when it is in the
+// initialism set, otherwise the word unchanged. It is used for the trailing
+// words of Sentence case, which stay lowercase except for acronyms.
+func (c *Caser) acr(w string) string {
+	if c.acronyms != nil {
+		if up, ok := c.acronyms[w]; ok {
+			return up
+		}
+	}
+	return w
+}
+
+// ToSentence renders s as Sentence case: the first word is capitalized, the
+// rest stay lowercase (initialisms excepted), joined by single spaces.
+func (c *Caser) ToSentence(s string) string {
+	var b strings.Builder
+	b.Grow(len(s) + 4)
+	first := true
+	for w := range Words(s) {
+		if first {
+			b.WriteString(c.cap1(w))
+			first = false
+			continue
+		}
+		b.WriteByte(' ')
+		b.WriteString(c.acr(w))
+	}
+	return b.String()
+}
+
 // ToTitle renders s as Title Case (capitalized words joined by spaces).
 func (c *Caser) ToTitle(s string) string {
 	var b strings.Builder
@@ -160,6 +190,8 @@ func (c *Caser) Convert(to Style, s string) string {
 		return c.ToDot(s)
 	case Title:
 		return c.ToTitle(s)
+	case Sentence:
+		return c.ToSentence(s)
 	default:
 		return s
 	}

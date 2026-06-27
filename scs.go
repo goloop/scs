@@ -38,6 +38,8 @@
 // use; a Caser is immutable once built.
 package scs
 
+import "unicode"
+
 // ToCamel converts s to camelCase using the default configuration.
 //
 //	scs.ToCamel("hello_world") // "helloWorld"
@@ -80,6 +82,11 @@ func ToDot(s string) string { return defaultCaser.ToDot(s) }
 //	scs.ToTitle("hello_world") // "Hello World"
 func ToTitle(s string) string { return defaultCaser.ToTitle(s) }
 
+// ToSentence converts s to Sentence case (only the first word capitalized).
+//
+//	scs.ToSentence("hello_world") // "Hello world"
+func ToSentence(s string) string { return defaultCaser.ToSentence(s) }
+
 // Convert renders s in the requested style using the default configuration.
 // An Unknown or out-of-range style returns s unchanged, so Convert is total
 // and never panics.
@@ -114,6 +121,9 @@ func IsDot(s string) bool { return s != "" && ToDot(s) == s }
 // IsTitle reports whether s is already in canonical Title Case.
 func IsTitle(s string) bool { return s != "" && ToTitle(s) == s }
 
+// IsSentence reports whether s is already in canonical Sentence case.
+func IsSentence(s string) bool { return s != "" && ToSentence(s) == s }
+
 // Is reports whether s is already canonical for the given style. An invalid
 // style always reports false.
 func Is(style Style, s string) bool {
@@ -123,11 +133,57 @@ func Is(style Style, s string) bool {
 	return Convert(style, s) == s
 }
 
-// detectionOrder lists the styles Detect probes. Single-separator styles come
-// first so that, for inputs that carry an explicit separator, the matching
-// style is found before the caseless single-word styles can tie.
-var detectionOrder = [...]Style{
-	Snake, Kebab, Dot, ScreamingSnake, Pascal, Camel, Title,
+// Separator bits recorded by scanSeps. A canonical value uses exactly one of
+// these as its separator, so the set present in the input prunes the styles
+// worth probing.
+const (
+	sepUnderscore uint8 = 1 << iota
+	sepHyphen
+	sepDot
+	sepSpace
+)
+
+// Candidate style lists for Detect, keyed by the separator found in the input.
+// These are package vars so the hot path allocates nothing.
+var (
+	// noSepUpperStyles: a separatorless token that contains an uppercase letter
+	// can only be canonical for a cased or all-caps style; the lowercase joined
+	// styles (snake/kebab/dot) would lowercase it and never match.
+	noSepUpperStyles = []Style{Camel, Pascal, ScreamingSnake, Title, Sentence}
+	underscoreStyles = []Style{Snake, ScreamingSnake}
+	hyphenStyles     = []Style{Kebab}
+	dotStyles        = []Style{Dot}
+	spaceStyles      = []Style{Title, Sentence}
+)
+
+// scanSeps walks s once and reports which canonical separators ('_', '-', '.',
+// ' ') appear, whether any uppercase letter is present, and whether any rune is
+// neither a letter, a digit, nor one of those separators (hasOther) — such a
+// rune cannot occur in any canonical value, so the input is non-canonical.
+//
+// "Uppercase" here means an uppercase letter with a distinct lowercase form,
+// matching the tokenizer's classOf, so the result stays consistent with how the
+// converters actually behave.
+func scanSeps(s string) (mask uint8, hasUpper, hasOther bool) {
+	for _, r := range s {
+		switch r {
+		case '_':
+			mask |= sepUnderscore
+		case '-':
+			mask |= sepHyphen
+		case '.':
+			mask |= sepDot
+		case ' ':
+			mask |= sepSpace
+		default:
+			if unicode.IsUpper(r) && unicode.ToLower(r) != r {
+				hasUpper = true
+			} else if !unicode.IsLetter(r) && !unicode.IsDigit(r) {
+				return mask, hasUpper, true
+			}
+		}
+	}
+	return mask, hasUpper, false
 }
 
 // Detect returns the single style for which s is already canonical. If s is
@@ -140,13 +196,45 @@ var detectionOrder = [...]Style{
 //	scs.Detect("USER_ID")  // ScreamingSnake, true
 //	scs.Detect("api")      // Unknown, false (ambiguous)
 //	scs.Detect("Hello_World") // Unknown, false (no canonical style)
+//
+// The input is scanned once for its separator so that only the styles which
+// could possibly match are probed; a string mixing two separators, or carrying
+// any other punctuation, is rejected without conversion.
 func Detect(s string) (Style, bool) {
 	if s == "" {
 		return Unknown, false
 	}
 
+	mask, hasUpper, hasOther := scanSeps(s)
+	if hasOther {
+		return Unknown, false
+	}
+
+	var candidates []Style
+	switch mask {
+	case 0:
+		// A separatorless, all-lowercase token equals its own snake, kebab,
+		// dot and camel renderings at once, so it is always ambiguous; only a
+		// token carrying an uppercase letter can pin a single cased style.
+		if !hasUpper {
+			return Unknown, false
+		}
+		candidates = noSepUpperStyles
+	case sepUnderscore:
+		candidates = underscoreStyles
+	case sepHyphen:
+		candidates = hyphenStyles
+	case sepDot:
+		candidates = dotStyles
+	case sepSpace:
+		candidates = spaceStyles
+	default:
+		// More than one separator type: no canonical value mixes them.
+		return Unknown, false
+	}
+
 	found := Unknown
-	for _, style := range detectionOrder {
+	for _, style := range candidates {
 		if Convert(style, s) == s {
 			if found != Unknown {
 				return Unknown, false // ambiguous: more than one match

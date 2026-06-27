@@ -14,6 +14,7 @@ func TestStyleString(t *testing.T) {
 		{ScreamingSnake, "screaming_snake"},
 		{Dot, "dot"},
 		{Title, "title"},
+		{Sentence, "sentence"},
 		{Unknown, "unknown"},
 		{Style(200), "unknown"},
 	}
@@ -25,7 +26,7 @@ func TestStyleString(t *testing.T) {
 }
 
 func TestStyleValid(t *testing.T) {
-	valid := []Style{Camel, Pascal, Snake, Kebab, ScreamingSnake, Dot, Title}
+	valid := []Style{Camel, Pascal, Snake, Kebab, ScreamingSnake, Dot, Title, Sentence}
 	for _, s := range valid {
 		if !s.Valid() {
 			t.Errorf("Style %v should be Valid", s)
@@ -60,6 +61,7 @@ func TestParseStyle(t *testing.T) {
 		{"screaming", ScreamingSnake, true},
 		{"constant", ScreamingSnake, true},
 		{"title", Title, true},
+		{"sentence", Sentence, true},
 		{"CAMEL", Unknown, false}, // exact, case-sensitive
 		{"", Unknown, false},
 		{"weird", Unknown, false},

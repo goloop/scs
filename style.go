@@ -38,11 +38,15 @@ const (
 	// Title is Title Case: capitalized words joined by single spaces
 	// (e.g. "Hello World").
 	Title
+
+	// Sentence is Sentence case: only the first word is capitalized, the rest
+	// stay lowercase, joined by single spaces (e.g. "Hello world").
+	Sentence
 )
 
 // maxStyle is the highest valid Style value; keep it in sync with the
 // constant block above so Valid and String stay correct as styles are added.
-const maxStyle = Title
+const maxStyle = Sentence
 
 // String returns the lowercase identifier of the style, suitable for flags,
 // configuration files and diagnostics. Unknown and out-of-range values
@@ -63,6 +67,8 @@ func (s Style) String() string {
 		return "dot"
 	case Title:
 		return "title"
+	case Sentence:
+		return "sentence"
 	default:
 		return "unknown"
 	}
@@ -96,6 +102,8 @@ func ParseStyle(name string) (Style, bool) {
 		return Dot, true
 	case "title":
 		return Title, true
+	case "sentence":
+		return Sentence, true
 	default:
 		return Unknown, false
 	}

@@ -52,6 +52,14 @@ func ExampleToTitle() {
 	// Output: Hello World
 }
 
+func ExampleToSentence() {
+	fmt.Println(scs.ToSentence("hello_world"))
+	fmt.Println(scs.ToSentence("parseHTTPResponse"))
+	// Output:
+	// Hello world
+	// Parse http response
+}
+
 func ExampleConvert() {
 	for _, style := range []scs.Style{scs.Snake, scs.Kebab, scs.Camel} {
 		fmt.Printf("%-6s %s\n", style, scs.Convert(style, "HTTPServerID"))

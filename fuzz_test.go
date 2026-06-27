@@ -76,6 +76,12 @@ func FuzzDetectRoundTrip(f *testing.F) {
 	}
 	f.Fuzz(func(t *testing.T, s string) {
 		style, ok := Detect(s)
+
+		// The pruned Detect must agree with the brute-force reference.
+		if rStyle, rOK := referenceDetect(s); style != rStyle || ok != rOK {
+			t.Fatalf("Detect(%q)=(%v,%v) != reference (%v,%v)", s, style, ok, rStyle, rOK)
+		}
+
 		if !ok {
 			if style != Unknown {
 				t.Fatalf("Detect(%q) returned ok=false but style=%v", s, style)

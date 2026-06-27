@@ -21,7 +21,7 @@ var corpus = []string{
 	"aB", "Ab", "ABc", "aBc", "ID2", "v2", "X",
 }
 
-var allStyles = []Style{Camel, Pascal, Snake, Kebab, ScreamingSnake, Dot, Title}
+var allStyles = []Style{Camel, Pascal, Snake, Kebab, ScreamingSnake, Dot, Title, Sentence}
 
 // stableStyles are the styles guaranteed idempotent and word-preserving for
 // *every* input: they lowercase and join with a separator, so their output

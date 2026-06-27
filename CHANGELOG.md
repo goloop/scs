@@ -12,7 +12,7 @@ path is now `github.com/goloop/scs/v2` and requires Go 1.24.
 ### Added
 - Universal tokenizer exposed as `Split(s) []string` and `Words(s) iter.Seq[string]`.
 - New case styles: `SCREAMING_SNAKE_CASE` (`ToScreamingSnake`), `dot.case`
-  (`ToDot`) and `Title Case` (`ToTitle`).
+  (`ToDot`), `Title Case` (`ToTitle`) and `Sentence case` (`ToSentence`).
 - `Convert(to Style, s string) string` for runtime-selected styles, plus
   `Style.String`, `Style.Valid` and `ParseStyle`.
 - `Detect(s string) (Style, bool)` with an unambiguous contract, and the generic

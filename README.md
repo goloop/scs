@@ -4,7 +4,7 @@
 
 Package `scs` converts identifiers between naming conventions:
 `camelCase`, `PascalCase`, `snake_case`, `kebab-case`,
-`SCREAMING_SNAKE_CASE`, `dot.case` and `Title Case`.
+`SCREAMING_SNAKE_CASE`, `dot.case`, `Title Case` and `Sentence case`.
 
 Every conversion is built on **one universal tokenizer**. `Split` breaks any
 input into normalized words; each style is then a different rendering of those
@@ -20,7 +20,7 @@ scs.ToKebab("HelloWorld")    // "hello-world"
 
 ## Features
 
-- Seven case styles from a single word model.
+- Eight case styles from a single word model.
 - **Total functions:** any string maps to a well-defined result, no errors.
 - Predictable, documented rules for acronyms, digits and Unicode.
 - Opt-in Go-style initialisms (`ID`, `URL`, `HTTP`) via a reusable, concurrency-safe `Caser`.
@@ -57,6 +57,7 @@ func main() {
     fmt.Println(scs.ToScreamingSnake("userID"))     // USER_ID
     fmt.Println(scs.ToDot("HelloWorld"))            // hello.world
     fmt.Println(scs.ToTitle("hello_world"))         // Hello World
+    fmt.Println(scs.ToSentence("hello_world"))      // Hello world
 
     // Style chosen at runtime (config, CLI flag, ...).
     style, _ := scs.ParseStyle("kebab")

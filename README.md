@@ -1,4 +1,4 @@
-[![Go Report Card](https://goreportcard.com/badge/github.com/goloop/scs)](https://goreportcard.com/report/github.com/goloop/scs) [![License](https://img.shields.io/badge/license-MIT-brightgreen)](https://github.com/goloop/scs/blob/master/LICENSE) [![License](https://img.shields.io/badge/godoc-YES-green)](https://godoc.org/github.com/goloop/scs/v2) [![Stay with Ukraine](https://img.shields.io/static/v1?label=Stay%20with&message=Ukraine%20♥&color=ffD700&labelColor=0057B8&style=flat)](https://u24.gov.ua/)
+[![Go Report Card](https://goreportcard.com/badge/github.com/goloop/scs/v2)](https://goreportcard.com/report/github.com/goloop/scs/v2) [![License](https://img.shields.io/badge/license-MIT-brightgreen)](https://github.com/goloop/scs/blob/master/LICENSE) [![License](https://img.shields.io/badge/godoc-YES-green)](https://godoc.org/github.com/goloop/scs/v2) [![Stay with Ukraine](https://img.shields.io/static/v1?label=Stay%20with&message=Ukraine%20♥&color=ffD700&labelColor=0057B8&style=flat)](https://u24.gov.ua/)
 
 # scs — String Case Style for Go
 
@@ -148,6 +148,33 @@ The per-style predicates `IsCamel`, `IsSnake`, … (and the generic
 - A dictionary-free tokenizer cannot tell `IPv6` apart from the
   "acronym + lowercase word" pattern, so `ToSnake("IPv6Address")` yields
   `i_pv6_address`. Use `WithAcronyms` or a separator when this matters.
+
+## Migrating from v1
+
+v1 (`github.com/goloop/scs`) keeps working; upgrade when you are ready. The
+import path gains a `/v2` suffix and the API is smaller because the converters
+are now total.
+
+```go
+import "github.com/goloop/scs/v2"
+```
+
+| v1 | v2 |
+|----|----|
+| `StrToSnake(s)`, `ToSnake(s)` | `ToSnake(s)` |
+| `CamelToSnake(s)` `(string, error)` | `ToSnake(s)` |
+| `StrIsSnake(s)` | `IsSnake(s)` |
+| `New(Snake, s)` + `Eat`/`Set`/`Value` | `ToSnake(s)` or `Convert(Snake, s)` |
+| forking for custom acronyms | `New(WithAcronyms("ID", "URL", ...))` |
+
+Behavior notes:
+
+- Case boundaries are preserved: `ToSnake("userID")` is now `user_id` (v1 gave
+  `userid`).
+- All-caps initialisms are opt-in via `WithAcronyms`; the default is Title
+  casing (`Http`, `Api`), which always round-trips.
+- The error-returning pairwise converters and the stateful `StringCaseStyle`
+  object are gone — use the total `To*` functions, `Convert` and `Detect`.
 
 ## Contributing
 

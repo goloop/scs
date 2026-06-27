@@ -1,322 +1,152 @@
-[![Go Report Card](https://goreportcard.com/badge/github.com/goloop/scs)](https://goreportcard.com/report/github.com/goloop/scs) [![License](https://img.shields.io/badge/license-MIT-brightgreen)](https://github.com/goloop/scs/blob/master/LICENSE) [![License](https://img.shields.io/badge/godoc-YES-green)](https://godoc.org/github.com/goloop/scs) [![Stay with Ukraine](https://img.shields.io/static/v1?label=Stay%20with&message=Ukraine%20♥&color=ffD700&labelColor=0057B8&style=flat)](https://u24.gov.ua/)
+[![Go Report Card](https://goreportcard.com/badge/github.com/goloop/scs)](https://goreportcard.com/report/github.com/goloop/scs) [![License](https://img.shields.io/badge/license-MIT-brightgreen)](https://github.com/goloop/scs/blob/master/LICENSE) [![License](https://img.shields.io/badge/godoc-YES-green)](https://godoc.org/github.com/goloop/scs/v2) [![Stay with Ukraine](https://img.shields.io/static/v1?label=Stay%20with&message=Ukraine%20♥&color=ffD700&labelColor=0057B8&style=flat)](https://u24.gov.ua/)
 
-# scs - String Case Style for Go
+# scs — String Case Style for Go
 
-Package scs (String Case Style) provides robust string case conversion utilities for Go applications. It supports conversion between camelCase, kebab-case, PascalCase, and snake_case formats.
+Package `scs` converts identifiers between naming conventions:
+`camelCase`, `PascalCase`, `snake_case`, `kebab-case`,
+`SCREAMING_SNAKE_CASE`, `dot.case` and `Title Case`.
+
+Every conversion is built on **one universal tokenizer**. `Split` breaks any
+input into normalized words; each style is then a different rendering of those
+words. Because a single tokenizer feeds every renderer, the converters are
+**total** — they never return an error and never need to know the input's
+original style.
+
+```go
+scs.ToSnake("HTTPServerID")  // "http_server_id"
+scs.ToCamel("user_id")       // "userId"
+scs.ToKebab("HelloWorld")    // "hello-world"
+```
 
 ## Features
 
-- Convert between four common case styles:
-  - camelCase
-  - kebab-case
-  - PascalCase
-  - snake_case
-- Two usage approaches:
-  - Direct conversion functions
-  - Object-oriented style with chainable methods
-- Proper handling of:
-  - Abbreviations (e.g., HTTP, API)
-  - Numbers
-  - Special characters
-- Thread-safe functions
-- Comprehensive error handling
-- Zero dependencies
+- Seven case styles from a single word model.
+- **Total functions:** any string maps to a well-defined result, no errors.
+- Predictable, documented rules for acronyms, digits and Unicode.
+- Opt-in Go-style initialisms (`ID`, `URL`, `HTTP`) via a reusable, concurrency-safe `Caser`.
+- `Detect` with an honest contract: it commits to a style only when the answer is unambiguous.
+- Public tokenizer: `Split` (slice) and `Words` (`iter.Seq`).
+- Zero dependencies.
 
 ## Installation
 
 ```bash
-go get -u github.com/goloop/scs
+go get github.com/goloop/scs/v2
 ```
 
-## Quick Start
+```go
+import "github.com/goloop/scs/v2"
+```
 
-To use this module import it as: `github.com/goloop/scs`
+## Quick start
 
 ```go
 package main
 
 import (
     "fmt"
-    "github.com/goloop/scs"
+
+    "github.com/goloop/scs/v2"
 )
 
 func main() {
-    // Direct conversion.
-    kebab := scs.StrToKebab("HelloWorld")  // hello-world
-    camel := scs.StrToCamel("hello-world") // helloWorld
+    fmt.Println(scs.ToCamel("hello_world"))         // helloWorld
+    fmt.Println(scs.ToPascal("hello-world"))        // HelloWorld
+    fmt.Println(scs.ToSnake("HelloWorld"))          // hello_world
+    fmt.Println(scs.ToKebab("helloWorld"))          // hello-world
+    fmt.Println(scs.ToScreamingSnake("userID"))     // USER_ID
+    fmt.Println(scs.ToDot("HelloWorld"))            // hello.world
+    fmt.Println(scs.ToTitle("hello_world"))         // Hello World
 
-    // Object-oriented approach.
-    style, _ := scs.New(scs.Snake, "HelloWorld")
-    fmt.Println(style.Value())  // hello_world
-
-    // Chain conversions.
-    style.ToCamel().ToKebab()
-    fmt.Println(style.Value())  // hello-world
+    // Style chosen at runtime (config, CLI flag, ...).
+    style, _ := scs.ParseStyle("kebab")
+    fmt.Println(scs.Convert(style, "HTTPServerID")) // http-server-id
 }
 ```
 
-### Conversion functions
+## Conversion model
 
-Example:
+The package never guesses the input's style; it always reduces the input to a
+list of words and renders that list:
 
 ```go
-package main
+scs.Split("HTTPServerID") // ["http", "server", "id"]
+scs.Split("user_id")      // ["user", "id"]
+scs.Split("web2print")    // ["web2print"]
 
-import "github.com/goloop/scs"
-
-func main() {
-    var s string
-
-    // Simple text
-    s = "hello world"
-    scs.StrToCamel(s)  // helloWorld
-    scs.StrToPascal(s) // HelloWorld
-    scs.StrToSnake(s)  // hello_world
-    scs.StrToKebab(s)  // hello-world
-
-    // Text with abbreviations
-    s = "http to https"
-    scs.StrToCamel(s)  // httpToHTTPS
-    scs.StrToPascal(s) // HTTPToHTTPS
-    scs.StrToSnake(s)  // http_to_https
-    scs.StrToKebab(s)  // http-to-https
-
-    // Converting
-    s = "http to https"
-    camel := scs.StrToCamel(s)            // httpToHTTPS
-    pascal, _ := scs.CamelToPascal(camel) // HTTPToHTTPS <nil>
-    kebab, _ := scs.PascalToKebab(pascal) // http-to-https <nil>
-    snake, _ := scs.KebabToSnake(kebab)   // http_to_https <nil>
-
-    // Use strings.ToUpper(snake) for convert to UPPER_SNAKE_CASE.
-
-    scs.SnakeToPascal(snake) // HTTPToHTTPS <nil>
-    scs.CamelToKebab(camel)  // http-to-https <nil>
-
-    // Errors
-    scs.CamelToSnake(kebab)  // value http-to-https isn't camelCase style
-    scs.PascalToCamel(camel) // value httpToHTTPS isn't PascalCase style
-
-    // Convert anything to anything correctly
-    scs.ToCamel(snake)  // httpToHTTPS
-    scs.ToPascal(kebab) // HTTPToHTTPS
-    scs.ToSnake(s)      // http_to_https
+for w := range scs.Words("parseJSONResponse") {
+    fmt.Println(w) // parse, json, response
 }
 ```
 
-### Style objects
+Word boundaries are placed at separators, at lower→upper transitions, at the
+end of an acronym followed by a lowercase word (`HTTPServer` → `HTTP|Server`),
+and before a digit-led Title word (`v2Final` → `v2|Final`).
 
-A safer way. Since each object knows what type it is and knows
-which conversion rules to use. This removes the need to return
-a second parameter as err when converting styles.
+## Initialisms (acronyms)
 
-Example:
+By default words are Title-cased (`Id`, `Url`, `Http`), which always
+round-trips. To follow the Go convention of all-caps initialisms, build a
+`Caser`:
 
 ```go
-package main
+c := scs.New(scs.WithAcronyms("ID", "URL", "HTTP", "API"))
 
-import "github.com/goloop/scs"
-
-func main() {
-    var s string
-
-    // Simple text
-    s = "hello world"
-    snake, _ := scs.New(scs.Snake) // scs.New(scs.Snake, s)
-
-    snake.Eat(s)         // hello_world
-    snake.Set(s).Value() // hello_world
-    snake.IsCamel()      // false
-    snake.IsSnake()      // true
-    snake.Value()        // hello_world
-
-    camel := snake.CopyToCamel()
-    camel.IsSnake() // false
-    camel.IsCamel() // true
-    camel.Value()   // helloWorld
-
-    // Text with abbreviations
-    s = "http to https"
-    pascal, _ := scs.New(scs.Pascal, s)
-    pascal.Value() // HTTPToHTTPS
-
-    kebab := pascal.CopyToKebab()
-    kebab.Value() // http-to-https
-}
+c.ToPascal("user_id")        // "UserID"
+c.ToCamel("http_url_builder") // "httpURLBuilder" (first word stays lowercase)
 ```
 
-## Functions
-
-- **CamelToKebab**(camel string) (string, error)
-
-  CamelToKebab converts a camelCase-style string to kebab-case. The conversion will be invalid if the input string is not camelCase style.
-
-- **CamelToPascal**(camel string) (string, error)
-
-  CamelToPascal converts a camelCase-style string to PascalCase. The conversion will be invalid if the input string is not camelCase style.
-
-- **CamelToSnake**(camel string) (string, error)
-
-  CamelToSnake converts a camelCase-style string to snake_case. The conversion will be invalid if the input string is not camelCase style.
-
-- **KebabToCamel**(kebab string) (string, error)
-
-  KebabToCamel converts a kebab-case-style string to camelCase. The conversion will be invalid if the input string is not kebab-case style.
-
-- **KebabToPascal**(kebab string) (string, error)
-
-  KebabToPascal converts a kebab-case-style string to PascalCase. The conversion will be invalid if the input string is not kebab-case style.
-
-- **KebabToSnake**(kebab string) (string, error)
-
-  KebabToSnake converts a kebab-case-style string to snake_case. The conversion will be invalid if the input string is not kebab-case style.
-
-- **PascalToCamel**(pascal string) (string, error)
-
-  PascalToCamel converts a PascalCase-style string to camelCase. The conversion will be invalid if the input string is not PascalCase style.
-
-- **PascalToKebab**(pascal string) (string, error)
-
-  PascalToKebab converts a PascalCase-style string to kebab-case. The conversion will be invalid if the input string is not PascalCase style.
-
-- **PascalToSnake**(pascal string) (string, error)
-
-  PascalToSnake converts a PascalCase-style string to snake_case. The conversion will be invalid if the input string is not PascalCase style.
-
-- **SnakeToCamel**(snake string) (string, error)
-
-  SnakeToCamel converts a snake_case-style string to camelCase. The conversion will be invalid if the input string is not snake_case style.
-
-- **SnakeToKebab**(snake string) (string, error)
-
-  SnakeToKebab converts a snake_case-style string to kebab-case. The conversion will be invalid if the input string is not snake_case style.
-
-- **SnakeToPascal**(snake string) (string, error)
-
-  SnakeToPascal converts a snake_case-style string to PascalCase. The conversion will be invalid if the input string is not snake_case style.
-
-- **StrIsCamel**(s string) bool
-
-  StrIsCamel returns true if string is camelCase.
-
-- **StrIsKebab**(s string) bool
-
-  StrIsKebab returns true if string is kebab-case.
-
-- **StrIsPascal**(s string) bool
-
-  StrIsPascal returns true if string is PascalCase.
-
-- **StrIsSnake**(s string) bool
-
-  StrIsSnake returns true if string is snake_case.
-
-- **StrToCamel**(s string) string
-
-  StrToCamel converts a string to camelCase.
-
-- **StrToKebab**(s string) string
-
-  StrToKebab converts a string to kebab-case.
-
-- **StrToPascal**(s string) string
-
-  StrToPascal converts a string to PascalCase.
-
-- **StrToSnake**(s string) string
-
-  StrToSnake converts a string to snake_case.
-
-- **ToCamel**(s string) string
-
-  ToCamel converts a string to camelCase. Unlike the StrToCamel function, if the source string already has a certain format, it will be correctly converted to camelCase.
-
-- **ToKebab**(s string) string
-
-  ToKebab converts a string to kebab-case. Unlike the StrToKebab function, if the source string already has a certain format, it will be correctly converted to kebab-case.
-
-- **ToPascal**(s string) string
-
-  ToPascal converts a string to PascalCase. Unlike the StrToPascal function, if the source string already has a certain format, it will be correctly converted to PascalCase.
-
-- **ToSnake**(s string) string
-
-  ToSnake converts a string to snake_case. Unlike the StrToSnake function, if the source string already has a certain format, it will be correctly converted to snake_case.
-
-- **Version**() string
-
-  Version returns the version of the module.
-
-- **New**(style CaseStyle, value ...string) (*StringCaseStyle, error)
-
-  New returns a pointer to a string case style object. The style defines the string case style. a string (or list of strings) to format.
-
-
-## StringCaseStyle Object
-
-- **CopyToCamel**() (*StringCaseStyle, error)
-
-  CopyToCamel converts an object to Camel Type StringCaseStyle and returns new pointer to it.
-
-- **CopyToKebab**() (*StringCaseStyle, error)
-
-  CopyToKebab converts an object to Kebab Type StringCaseStyle and returns new pointer to it.
-
-- **CopyToPascal**() (*StringCaseStyle, error)
-
-  CopyToPascal converts an object to Pascal Type StringCaseStyle and returns new pointer to it.
-
-- **CopyToSnake**() (*StringCaseStyle, error)
-
-  CopyToSnake converts an object to Snake Type StringCaseStyle and returns new pointer to it.
-
-- **Eat**(s string) string
-
-  Eat converts a string to the specified style and stores it as an object value.
-
-- **IsCamel**() bool
-
-  IsCamel returns true if object contains camelCase value.
-
-- **IsKebab**() bool
-
-  IsKebab returns true if object contains kebab-case value.
-
-- **IsPascal**() bool
-
-  IsPascal returns true if object contains PascalCase value.
-
-- **IsSnake**() bool
-
-  IsSnake returns true if object contains snake-case value.
-
-- **IsValid**() bool
-
-  IsValid returns true if StringCaseStyle is valid.
-
-- **Set**(s string) *StringCaseStyle
-
-  Set sets new value.
-
-- **ToCamel**() error
-
-  ToCamel converts an object to Camel Type StringCaseStyle.
-
-- **ToKebab**() error
-
-  ToKebab converts an object to Kebab Type StringCaseStyle.
-
-- **ToPascal**() error
-
-  ToPascal converts an object to Pascal Type StringCaseStyle.
-
-- **ToSnake**() error
-
-  ToSnake converts an object to Snake Type StringCaseStyle.
-
-- **Value**() string
-
-  Value returns value of the object.
+A `Caser` is immutable and safe for concurrent use. Initialisms are opt-in
+because adjacent all-caps acronyms cannot always be split apart again
+(`"HTTPAPI"` is ambiguous), so the round-trip-safe Title casing is the default.
+
+## Numbers
+
+Digits attach to neighboring letters and never split a word on their own, so
+identifier fragments stay intact:
+
+```go
+scs.ToSnake("web2print") // "web2print"
+scs.ToSnake("sha256sum") // "sha256sum"
+scs.ToSnake("oauth2")    // "oauth2"
+```
+
+Only an explicit separator turns a number into its own word:
+
+```go
+scs.ToSnake("web 2 print") // "web_2_print"
+```
+
+## Detection
+
+`Detect` returns a style only when the input is canonical for exactly one
+style. Ambiguous inputs (such as the bare word `"api"`, valid in several
+styles at once) return `(Unknown, false)`:
+
+```go
+scs.Detect("user_id") // Snake, true
+scs.Detect("userId")  // Camel, true
+scs.Detect("USER_ID") // ScreamingSnake, true
+scs.Detect("api")     // Unknown, false
+```
+
+The per-style predicates `IsCamel`, `IsSnake`, … (and the generic
+`Is(style, s)`) report whether a string is already canonical for that style.
+
+## Guarantees and limits
+
+- The converters never panic and always return valid UTF-8.
+- `snake_case`, `kebab-case` and `dot.case` are **idempotent** and preserve the
+  exact word sequence for any input, so routing a value through them is lossless.
+- For ordinary multi-letter identifiers every style round-trips
+  (`snake → camel → snake` returns the original).
+- The cased joined styles (`camelCase`, `PascalCase`, `Title Case`) cannot be
+  idempotent for *single-letter* or adjacent all-caps words, because such
+  renderings are inherently ambiguous with acronyms — this is a property of any
+  dictionary-free converter, not a defect.
+- A dictionary-free tokenizer cannot tell `IPv6` apart from the
+  "acronym + lowercase word" pattern, so `ToSnake("IPv6Address")` yields
+  `i_pv6_address`. Use `WithAcronyms` or a separator when this matters.
 
 ## Contributing
 
@@ -324,4 +154,5 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE)
+file for details.

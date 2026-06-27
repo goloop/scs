@@ -1,422 +1,162 @@
+// Package scs (String Case Style) converts identifiers between naming
+// conventions: camelCase, PascalCase, snake_case, kebab-case,
+// SCREAMING_SNAKE_CASE, dot.case and Title Case.
+//
+// # Model
+//
+// Every conversion is built on one universal tokenizer. Split breaks any input
+// into normalized words by honoring separators, case transitions and acronym
+// boundaries; each style is then a different rendering of those words:
+//
+//	scs.ToSnake("HTTPServerID")  // "http_server_id"
+//	scs.ToCamel("user_id")       // "userId"
+//	scs.ToKebab("HelloWorld")    // "hello-world"
+//
+// Because a single tokenizer feeds every renderer, the converters are total:
+// they never return an error and never need to know the input's original
+// style. Any string maps to a well-defined result.
+//
+// # Initialisms
+//
+// By default words are Title-cased ("Id", "Url", "Http"), which always
+// round-trips. To follow the Go convention of all-caps initialisms, build a
+// Caser with preserved acronyms:
+//
+//	c := scs.New(scs.WithAcronyms("ID", "URL", "HTTP"))
+//	c.ToPascal("user_id") // "UserID"
+//
+// # Numbers
+//
+// Digits attach to neighboring letters and never split a word on their own, so
+// identifier fragments stay intact ("utf8", "sha256", "oauth2"). Only an
+// explicit separator turns a number into its own word ("web 2 print" ->
+// "web_2_print").
+//
+// # Thread safety
+//
+// All package-level functions and all *Caser methods are safe for concurrent
+// use; a Caser is immutable once built.
 package scs
 
-import (
-	"fmt"
-	"strings"
-)
+// ToCamel converts s to camelCase using the default configuration.
+//
+//	scs.ToCamel("hello_world") // "helloWorld"
+//	scs.ToCamel("HelloWorld")  // "helloWorld"
+//	scs.ToCamel("HTTP server")  // "httpServer"
+func ToCamel(s string) string { return defaultCaser.ToCamel(s) }
 
-const (
-	// Camel is constant that characterizes string case style as camelCase.
-	Camel CaseStyle = 1 << iota
+// ToPascal converts s to PascalCase using the default configuration.
+//
+//	scs.ToPascal("hello_world") // "HelloWorld"
+//	scs.ToPascal("helloWorld")  // "HelloWorld"
+func ToPascal(s string) string { return defaultCaser.ToPascal(s) }
 
-	// Kebab is constant that characterizes string case style as kebab-case.
-	Kebab
+// ToSnake converts s to snake_case.
+//
+//	scs.ToSnake("helloWorld") // "hello_world"
+//	scs.ToSnake("HTTPServer")  // "http_server"
+func ToSnake(s string) string { return defaultCaser.ToSnake(s) }
 
-	// Pascal is constant that characterizes string case style as PascalCase.
-	Pascal
+// ToKebab converts s to kebab-case.
+//
+//	scs.ToKebab("helloWorld") // "hello-world"
+//	scs.ToKebab("HelloWorld") // "hello-world"
+func ToKebab(s string) string { return defaultCaser.ToKebab(s) }
 
-	// Snake is constant that characterizes string case style as snake_case.
-	Snake
-)
+// ToScreamingSnake converts s to SCREAMING_SNAKE_CASE, the usual style for
+// constants and environment variables.
+//
+//	scs.ToScreamingSnake("helloWorld") // "HELLO_WORLD"
+//	scs.ToScreamingSnake("userID")     // "USER_ID"
+func ToScreamingSnake(s string) string { return defaultCaser.ToScreamingSnake(s) }
 
-// CaseStyle is string case style type.
-type CaseStyle uint8
+// ToDot converts s to dot.case.
+//
+//	scs.ToDot("helloWorld") // "hello.world"
+func ToDot(s string) string { return defaultCaser.ToDot(s) }
 
-// StringCaseStyle is object of the string case style (SCS).
-// It can be created correctly through the New function only.
-type StringCaseStyle struct {
-	do      func(string) string // convert raw string to the case-styling value
-	style   CaseStyle           // is the flag of the string case style
-	value   string              // value in case-style format
-	isValid bool                // true if the object was created correctly
+// ToTitle converts s to Title Case.
+//
+//	scs.ToTitle("hello_world") // "Hello World"
+func ToTitle(s string) string { return defaultCaser.ToTitle(s) }
+
+// Convert renders s in the requested style using the default configuration.
+// An Unknown or out-of-range style returns s unchanged, so Convert is total
+// and never panics.
+//
+//	scs.Convert(scs.Kebab, "userID") // "user-id"
+func Convert(to Style, s string) string { return defaultCaser.Convert(to, s) }
+
+// IsCamel reports whether s is already in canonical camelCase, i.e. it is
+// non-empty and ToCamel leaves it unchanged.
+//
+// Note that a single lowercase word such as "api" is canonical in several
+// styles at once (camel, snake, kebab, dot); use Detect when you need a single
+// unambiguous answer.
+func IsCamel(s string) bool { return s != "" && ToCamel(s) == s }
+
+// IsPascal reports whether s is already in canonical PascalCase.
+func IsPascal(s string) bool { return s != "" && ToPascal(s) == s }
+
+// IsSnake reports whether s is already in canonical snake_case.
+func IsSnake(s string) bool { return s != "" && ToSnake(s) == s }
+
+// IsKebab reports whether s is already in canonical kebab-case.
+func IsKebab(s string) bool { return s != "" && ToKebab(s) == s }
+
+// IsScreamingSnake reports whether s is already in canonical
+// SCREAMING_SNAKE_CASE.
+func IsScreamingSnake(s string) bool { return s != "" && ToScreamingSnake(s) == s }
+
+// IsDot reports whether s is already in canonical dot.case.
+func IsDot(s string) bool { return s != "" && ToDot(s) == s }
+
+// IsTitle reports whether s is already in canonical Title Case.
+func IsTitle(s string) bool { return s != "" && ToTitle(s) == s }
+
+// Is reports whether s is already canonical for the given style. An invalid
+// style always reports false.
+func Is(style Style, s string) bool {
+	if s == "" || !style.Valid() {
+		return false
+	}
+	return Convert(style, s) == s
 }
 
-// New returns a pointer to a string case style object. The style defines
-// the string case style. a string (or list of strings) to format.
-//
-// This function creates a new instance of the StringCaseStyle struct, which
-// represents a specific string case style. It takes a CaseStyle parameter
-// to determine the desired case style (Camel, Kebab, Pascal, Snake), and
-// one or more string values to be formatted.
-//
-// The function initializes the `do` field of the StringCaseStyle struct with
-// the appropriate formatting function based on the specified case style.
-// It then joins the input strings with a space separator and applies the
-// formatting function to the resulting string. The formatted string is stored
-// in the `value` field of the StringCaseStyle struct.
-//
-// If an incorrect case style is provided, the function returns an error along
-// with a nil pointer to the StringCaseStyle.
-//
-// Example usage:
-//
-//	style, err := scs.New(scs.Camel, "hello", "world")
-func New(style CaseStyle, value ...string) (*StringCaseStyle, error) {
-	var do func(string) string
+// detectionOrder lists the styles Detect probes. Single-separator styles come
+// first so that, for inputs that carry an explicit separator, the matching
+// style is found before the caseless single-word styles can tie.
+var detectionOrder = [...]Style{
+	Snake, Kebab, Dot, ScreamingSnake, Pascal, Camel, Title,
+}
 
-	switch style {
-	case Camel:
-		do = StrToCamel
-	case Kebab:
-		do = StrToKebab
-	case Pascal:
-		do = StrToPascal
-	case Snake:
-		do = StrToSnake
-	default:
-		return &StringCaseStyle{do: func(s string) string { return s }},
-			fmt.Errorf("incorrect case style")
+// Detect returns the single style for which s is already canonical. If s is
+// empty, matches no style, or matches more than one style (for example the
+// bare word "api", which is valid camel, snake, kebab and dot at once), it
+// returns Unknown and false.
+//
+//	scs.Detect("user_id")  // Snake, true
+//	scs.Detect("userId")   // Camel, true
+//	scs.Detect("USER_ID")  // ScreamingSnake, true
+//	scs.Detect("api")      // Unknown, false (ambiguous)
+//	scs.Detect("Hello_World") // Unknown, false (no canonical style)
+func Detect(s string) (Style, bool) {
+	if s == "" {
+		return Unknown, false
 	}
 
-	return &StringCaseStyle{
-		do:      do,
-		style:   style,
-		value:   do(strings.Join(value, " ")),
-		isValid: true,
-	}, nil
-}
-
-// IsValid returns true if the StringCaseStyle object is valid.
-//
-// This method is used to check the validity of a StringCaseStyle object.
-// It returns true if the object is valid, indicating that the string case
-// style and value have been set successfully.
-//
-// Example usage:
-//
-//	style, _ := New(Camel, "helloWorld")
-//	isValid := style.IsValid()
-//	// isValid: true
-//
-//	invalidStyle := &StringCaseStyle{isValid: false}
-//	isValid := invalidStyle.IsValid()
-//	// isValid: false
-func (o *StringCaseStyle) IsValid() bool {
-	return o.isValid
-}
-
-// IsCamel returns true if the StringCaseStyle object represents
-// a camelCase value.
-//
-// This method checks if the StringCaseStyle object has a camelCase style.
-// It returns true if the object represents a camelCase value, indicating
-// that the original value or formatted value is in camelCase.
-//
-// Example usage:
-//
-//	style, _ := New(Camel, "helloWorld")
-//	isCamel := style.IsCamel()
-//	// isCamel: true
-//
-//	style, _ = New(Pascal, "HelloWorld")
-//	isCamel = style.IsCamel()
-//	// isCamel: false
-func (o *StringCaseStyle) IsCamel() bool {
-	return o.style == Camel
-}
-
-// IsKebab returns true if the StringCaseStyle object represents
-// a kebab-case value.
-//
-// This method checks if the StringCaseStyle object has a kebab-case style.
-// It returns true if the object represents a kebab-case value, indicating
-// that the original value or formatted value is in kebab-case.
-//
-// Example usage:
-//
-//	style, _ := New(Kebab, "hello-world")
-//	isKebab := style.IsKebab()
-//	// isKebab: true
-//
-//	style, _ = New(Pascal, "HelloWorld")
-//	isKebab = style.IsKebab()
-//	// isKebab: false
-func (o *StringCaseStyle) IsKebab() bool {
-	return o.style == Kebab
-}
-
-// IsPascal returns true if the StringCaseStyle object represents
-// a PascalCase value.
-//
-// This method checks if the StringCaseStyle object has a PascalCase style.
-// It returns true if the object represents a PascalCase value, indicating
-// that the original value or formatted value is in PascalCase.
-//
-// Example usage:
-//
-//	style, _ := New(Pascal, "HelloWorld")
-//	isPascal := style.IsPascal()
-//	// isPascal: true
-//
-//	style, _ = New(Snake, "hello_world")
-//	isPascal = style.IsPascal()
-//	// isPascal: false
-func (o *StringCaseStyle) IsPascal() bool {
-	return o.style == Pascal
-}
-
-// IsSnake returns true if the StringCaseStyle object represents
-// a snake_case value.
-//
-// This method checks if the StringCaseStyle object has a snake_case style.
-// It returns true if the object represents a snake_case value, indicating
-// that the original value or formatted value is in snake_case.
-//
-// Example usage:
-//
-//	style, _ := New(Snake, "hello_world")
-//	isSnake := style.IsSnake()
-//	// isSnake: true
-//
-//	style, _ = New(Pascal, "HelloWorld")
-//	isSnake = style.IsSnake()
-//	// isSnake: false
-func (o *StringCaseStyle) IsSnake() bool {
-	return o.style == Snake
-}
-
-// Eat converts a string to the specified style and stores it
-// as the object value.
-//
-// This method converts the input string to the style defined by the
-// StringCaseStyle object and updates the object's value.
-// The converted value is returned as the result.
-//
-// Example usage:
-//
-//	style, _ := New(Camel, "hello_world")
-//	result := style.Eat("example_input")
-//	// result: "exampleInput"
-//	// style.Value(): "exampleInput"
-//
-//	style, _ = New(Kebab, "hello-world")
-//	result = style.Eat("example_input")
-//	// result: "example-input"
-//	// style.Value(): "example-input"
-func (o *StringCaseStyle) Eat(s string) string {
-	o.value = o.do(s)
-	return o.value
-}
-
-// Set sets a new value for the StringCaseStyle object.
-//
-// This method converts the input string to the style defined by the
-// StringCaseStyle object and sets the converted value as the new value
-// of the object. The updated object is returned for method chaining.
-//
-// Example usage:
-//
-//	style, _ := New(Camel, "hello_world")
-//	result := style.Set("example_input")
-//	// result.Value(): "exampleInput"
-//
-//	style, _ = New(Kebab, "hello-world")
-//	result = style.Set("example_input")
-//	// result.value: "example-input"
-func (o *StringCaseStyle) Set(s string) *StringCaseStyle {
-	o.value = o.do(s)
-	return o
-}
-
-// Value returns the current value of the StringCaseStyle object.
-//
-// This method returns the current value of the StringCaseStyle object.
-//
-// Example usage:
-//
-//	style, _ := New(Camel, "Hello World")
-//	result := style.Value()
-//	// result: "Hello World"
-//
-//	style, _ = New(Kebab, "Show me")
-//	result = style.Value()
-//	// result: "Show me"
-func (o *StringCaseStyle) Value() string {
-	return o.value
-}
-
-// CopyToCamel converts an object to Camel Type StringCaseStyle
-// and returns new pointer to it.
-func (o *StringCaseStyle) CopyToCamel() (*StringCaseStyle, error) {
-	var (
-		value string
-		err   error
-	)
-
-	switch o.style {
-	case Camel:
-		value = o.value
-	case Kebab:
-		value, err = KebabToCamel(o.value)
-	case Pascal:
-		value, err = PascalToCamel(o.value)
-	case Snake:
-		value, err = SnakeToCamel(o.value)
+	found := Unknown
+	for _, style := range detectionOrder {
+		if Convert(style, s) == s {
+			if found != Unknown {
+				return Unknown, false // ambiguous: more than one match
+			}
+			found = style
+		}
 	}
 
-	return &StringCaseStyle{
-		do:      StrToCamel,
-		style:   Camel,
-		value:   value,
-		isValid: err == nil,
-	}, err
-}
-
-// ToCamel converts an object to Camel Type StringCaseStyle.
-func (o *StringCaseStyle) ToCamel() error {
-	obj, err := o.CopyToCamel()
-	o.style = obj.style
-	o.value = obj.value
-	o.do = obj.do
-	o.isValid = obj.isValid
-
-	return err
-}
-
-// CopyToKebab converts an object to Kebab Type StringCaseStyle
-// and returns new pointer to it.
-func (o *StringCaseStyle) CopyToKebab() (*StringCaseStyle, error) {
-	var (
-		value string
-		err   error
-	)
-
-	switch o.style {
-	case Camel:
-		value, err = CamelToKebab(o.value)
-	case Kebab:
-		value = o.value
-	case Pascal:
-		value, err = PascalToKebab(o.value)
-	case Snake:
-		value, err = SnakeToKebab(o.value)
+	if found == Unknown {
+		return Unknown, false
 	}
-
-	return &StringCaseStyle{
-		do:      StrToKebab,
-		style:   Kebab,
-		value:   value,
-		isValid: err == nil,
-	}, err
-}
-
-// ToKebab converts an object to Kebab Type StringCaseStyle.
-func (o *StringCaseStyle) ToKebab() error {
-	if o.style == Kebab {
-		return nil
-	}
-
-	var newValue string
-	var err error
-
-	switch o.style {
-	case Camel:
-		newValue, err = CamelToKebab(o.value)
-	case Pascal:
-		newValue, err = PascalToKebab(o.value)
-	case Snake:
-		newValue, err = SnakeToKebab(o.value)
-	}
-
-	if err != nil {
-		return err
-	}
-
-	o.value = newValue
-	o.style = Kebab
-	o.do = StrToKebab
-	return nil
-}
-
-// CopyToPascal converts an object to Pascal Type StringCaseStyle
-// and returns new pointer to it.
-func (o *StringCaseStyle) CopyToPascal() (*StringCaseStyle, error) {
-	var (
-		value string
-		err   error
-	)
-
-	switch o.style {
-	case Camel:
-		value, err = CamelToPascal(o.value)
-	case Kebab:
-		value, err = KebabToPascal(o.value)
-	case Pascal:
-		value = o.value
-	case Snake:
-		value, err = SnakeToPascal(o.value)
-	}
-
-	return &StringCaseStyle{
-		do:      StrToPascal,
-		style:   Pascal,
-		value:   value,
-		isValid: err == nil,
-	}, err
-}
-
-// ToPascal converts an object to Pascal Type StringCaseStyle.
-func (o *StringCaseStyle) ToPascal() error {
-	if o.style == Pascal {
-		return nil
-	}
-
-	var newValue string
-	var err error
-
-	switch o.style {
-	case Camel:
-		newValue, err = CamelToPascal(o.value)
-	case Kebab:
-		newValue, err = KebabToPascal(o.value)
-	case Snake:
-		newValue, err = SnakeToPascal(o.value)
-	}
-
-	if err != nil {
-		return err
-	}
-
-	o.value = newValue
-	o.style = Pascal
-	o.do = StrToPascal
-	return nil
-}
-
-// CopyToSnake converts an object to Snake Type StringCaseStyle
-// and returns new pointer to it.
-func (o *StringCaseStyle) CopyToSnake() (*StringCaseStyle, error) {
-	var (
-		value string
-		err   error
-	)
-
-	switch o.style {
-	case Camel:
-		value, err = CamelToSnake(o.value)
-	case Kebab:
-		value, err = KebabToSnake(o.value)
-	case Pascal:
-		value, err = PascalToSnake(o.value)
-	case Snake:
-		value = o.value
-	}
-
-	return &StringCaseStyle{
-		do:      StrToSnake,
-		style:   Snake,
-		value:   value,
-		isValid: err == nil,
-	}, err
-}
-
-// ToSnake converts an object to Snake Type StringCaseStyle.
-func (o *StringCaseStyle) ToSnake() error {
-	obj, err := o.CopyToSnake()
-	o.style = obj.style
-	o.value = obj.value
-	o.do = obj.do
-	o.isValid = obj.isValid
-
-	return err
+	return found, true
 }

@@ -1,3 +1,3 @@
-module github.com/goloop/scs
+module github.com/goloop/scs/v2
 
-go 1.20
+go 1.24

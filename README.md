@@ -2,9 +2,9 @@
 
 # scs — String Case Style for Go
 
-Package `scs` converts identifiers between naming conventions:
-`camelCase`, `PascalCase`, `snake_case`, `kebab-case`,
-`SCREAMING_SNAKE_CASE`, `dot.case`, `Title Case` and `Sentence case`.
+`scs` converts identifiers between naming conventions: `camelCase`,
+`PascalCase`, `snake_case`, `kebab-case`, `SCREAMING_SNAKE_CASE`, `dot.case`,
+`Title Case` and `Sentence case`.
 
 Every conversion is built on **one universal tokenizer**. `Split` breaks any
 input into normalized words; each style is then a different rendering of those
@@ -13,18 +13,20 @@ words. Because a single tokenizer feeds every renderer, the converters are
 original style.
 
 ```go
-scs.ToSnake("HTTPServerID")  // "http_server_id"
-scs.ToCamel("user_id")       // "userId"
-scs.ToKebab("HelloWorld")    // "hello-world"
+scs.ToSnake("HTTPServerID") // "http_server_id"
+scs.ToCamel("user_id")      // "userId"
+scs.ToKebab("HelloWorld")   // "hello-world"
 ```
 
 ## Features
 
 - Eight case styles from a single word model.
-- **Total functions:** any string maps to a well-defined result, no errors.
+- **Total functions** — any string maps to a well-defined result, no errors.
 - Predictable, documented rules for acronyms, digits and Unicode.
-- Opt-in Go-style initialisms (`ID`, `URL`, `HTTP`) via a reusable, concurrency-safe `Caser`.
-- `Detect` with an honest contract: it commits to a style only when the answer is unambiguous.
+- Opt-in Go-style initialisms (`ID`, `URL`, `HTTP`) via a reusable,
+  concurrency-safe `Caser`.
+- `Detect` with an honest contract — it commits to a style only when the answer
+  is unambiguous.
 - Public tokenizer: `Split` (slice) and `Words` (`iter.Seq`).
 - Zero dependencies.
 
@@ -38,6 +40,8 @@ go get github.com/goloop/scs/v2
 import "github.com/goloop/scs/v2"
 ```
 
+Requires Go 1.24 or newer. The package has no third-party dependencies.
+
 ## Quick start
 
 ```go
@@ -50,137 +54,34 @@ import (
 )
 
 func main() {
-    fmt.Println(scs.ToCamel("hello_world"))         // helloWorld
-    fmt.Println(scs.ToPascal("hello-world"))        // HelloWorld
-    fmt.Println(scs.ToSnake("HelloWorld"))          // hello_world
-    fmt.Println(scs.ToKebab("helloWorld"))          // hello-world
-    fmt.Println(scs.ToScreamingSnake("userID"))     // USER_ID
-    fmt.Println(scs.ToDot("HelloWorld"))            // hello.world
-    fmt.Println(scs.ToTitle("hello_world"))         // Hello World
-    fmt.Println(scs.ToSentence("hello_world"))      // Hello world
+    fmt.Println(scs.ToCamel("hello_world"))     // helloWorld
+    fmt.Println(scs.ToPascal("hello-world"))    // HelloWorld
+    fmt.Println(scs.ToSnake("HelloWorld"))      // hello_world
+    fmt.Println(scs.ToKebab("helloWorld"))      // hello-world
+    fmt.Println(scs.ToScreamingSnake("userID")) // USER_ID
+    fmt.Println(scs.ToSentence("hello_world"))  // Hello world
 
     // Style chosen at runtime (config, CLI flag, ...).
     style, _ := scs.ParseStyle("kebab")
     fmt.Println(scs.Convert(style, "HTTPServerID")) // http-server-id
+
+    // Go-style all-caps initialisms are opt-in via a reusable Caser.
+    c := scs.New(scs.WithAcronyms("ID", "URL", "HTTP"))
+    fmt.Println(c.ToPascal("user_id")) // UserID
 }
 ```
 
-## Conversion model
+## Documentation
 
-The package never guesses the input's style; it always reduces the input to a
-list of words and renders that list:
-
-```go
-scs.Split("HTTPServerID") // ["http", "server", "id"]
-scs.Split("user_id")      // ["user", "id"]
-scs.Split("web2print")    // ["web2print"]
-
-for w := range scs.Words("parseJSONResponse") {
-    fmt.Println(w) // parse, json, response
-}
-```
-
-Word boundaries are placed at separators, at lower→upper transitions, at the
-end of an acronym followed by a lowercase word (`HTTPServer` → `HTTP|Server`),
-and before a digit-led Title word (`v2Final` → `v2|Final`).
-
-## Initialisms (acronyms)
-
-By default words are Title-cased (`Id`, `Url`, `Http`), which always
-round-trips. To follow the Go convention of all-caps initialisms, build a
-`Caser`:
-
-```go
-c := scs.New(scs.WithAcronyms("ID", "URL", "HTTP", "API"))
-
-c.ToPascal("user_id")        // "UserID"
-c.ToCamel("http_url_builder") // "httpURLBuilder" (first word stays lowercase)
-```
-
-A `Caser` is immutable and safe for concurrent use. Initialisms are opt-in
-because adjacent all-caps acronyms cannot always be split apart again
-(`"HTTPAPI"` is ambiguous), so the round-trip-safe Title casing is the default.
-
-## Numbers
-
-Digits attach to neighboring letters and never split a word on their own, so
-identifier fragments stay intact:
-
-```go
-scs.ToSnake("web2print") // "web2print"
-scs.ToSnake("sha256sum") // "sha256sum"
-scs.ToSnake("oauth2")    // "oauth2"
-```
-
-Only an explicit separator turns a number into its own word:
-
-```go
-scs.ToSnake("web 2 print") // "web_2_print"
-```
-
-## Detection
-
-`Detect` returns a style only when the input is canonical for exactly one
-style. Ambiguous inputs (such as the bare word `"api"`, valid in several
-styles at once) return `(Unknown, false)`:
-
-```go
-scs.Detect("user_id") // Snake, true
-scs.Detect("userId")  // Camel, true
-scs.Detect("USER_ID") // ScreamingSnake, true
-scs.Detect("api")     // Unknown, false
-```
-
-The per-style predicates `IsCamel`, `IsSnake`, … (and the generic
-`Is(style, s)`) report whether a string is already canonical for that style.
-
-## Guarantees and limits
-
-- The converters never panic and always return valid UTF-8.
-- `snake_case`, `kebab-case` and `dot.case` are **idempotent** and preserve the
-  exact word sequence for any input, so routing a value through them is lossless.
-- For ordinary multi-letter identifiers every style round-trips
-  (`snake → camel → snake` returns the original).
-- The cased joined styles (`camelCase`, `PascalCase`, `Title Case`) cannot be
-  idempotent for *single-letter* or adjacent all-caps words, because such
-  renderings are inherently ambiguous with acronyms — this is a property of any
-  dictionary-free converter, not a defect.
-- A dictionary-free tokenizer cannot tell `IPv6` apart from the
-  "acronym + lowercase word" pattern, so `ToSnake("IPv6Address")` yields
-  `i_pv6_address`. Use `WithAcronyms` or a separator when this matters.
-
-## Migrating from v1
-
-v1 (`github.com/goloop/scs`) keeps working; upgrade when you are ready. The
-import path gains a `/v2` suffix and the API is smaller because the converters
-are now total.
-
-```go
-import "github.com/goloop/scs/v2"
-```
-
-| v1 | v2 |
-|----|----|
-| `StrToSnake(s)`, `ToSnake(s)` | `ToSnake(s)` |
-| `CamelToSnake(s)` `(string, error)` | `ToSnake(s)` |
-| `StrIsSnake(s)` | `IsSnake(s)` |
-| `New(Snake, s)` + `Eat`/`Set`/`Value` | `ToSnake(s)` or `Convert(Snake, s)` |
-| forking for custom acronyms | `New(WithAcronyms("ID", "URL", ...))` |
-
-Behavior notes:
-
-- Case boundaries are preserved: `ToSnake("userID")` is now `user_id` (v1 gave
-  `userid`).
-- All-caps initialisms are opt-in via `WithAcronyms`; the default is Title
-  casing (`Http`, `Api`), which always round-trips.
-- The error-returning pairwise converters and the stateful `StringCaseStyle`
-  object are gone — use the total `To*` functions, `Convert` and `Detect`.
+- Full reference and recipes: [DOC.md](DOC.md) · [DOC.UK.md](DOC.UK.md)
+- Package API: [pkg.go.dev/github.com/goloop/scs/v2](https://pkg.go.dev/github.com/goloop/scs/v2)
+- Changes between versions: [CHANGELOG.md](CHANGELOG.md)
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome. Please run `go test ./...`, `go vet ./...` and
+`gofmt -l .` before submitting a pull request.
 
 ## License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE)
-file for details.
+`scs` is released under the MIT License. See [LICENSE](LICENSE).

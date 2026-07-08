@@ -40,7 +40,11 @@ func classOf(r rune) class {
 		return clDigit
 	case unicode.IsUpper(r) && unicode.ToLower(r) != r:
 		return clUpper
-	case unicode.IsLetter(r):
+	case unicode.IsLetter(r) || unicode.Is(unicode.Mn, r) ||
+		unicode.Is(unicode.Mc, r) || unicode.Is(unicode.Me, r):
+		// Combining marks (as in NFD text) glue to the preceding letter and
+		// never spawn a boundary, so a decomposed accent is not silently
+		// dropped as a separator.
 		return clLower
 	default:
 		return clOther

@@ -119,3 +119,25 @@ func TestSplitProducesLowercaseWords(t *testing.T) {
 		}
 	}
 }
+
+// TestSplitNFDMarksPreserved guards BUG-01: a combining mark (NFD form) glues
+// to its base letter instead of being dropped as a separator.
+func TestSplitNFDMarksPreserved(t *testing.T) {
+	const nfd = "caféLatte" // "caféLatte" with a combining acute accent
+	got := Split(nfd)
+	want := []string{"café", "latte"}
+	if !slices.Equal(got, want) {
+		t.Errorf("Split(NFD) = %q, want %q", got, want)
+	}
+	if s := ToSnake(nfd); s != "café_latte" {
+		t.Errorf("ToSnake(NFD) = %q, want the accent preserved", s)
+	}
+}
+
+// TestPascalTitlecaseDigraph guards BUG-02: capitalizing a titlecase digraph
+// uses title case (U+01C5 Dž), not the all-caps form (U+01C4 Ǆ).
+func TestPascalTitlecaseDigraph(t *testing.T) {
+	if got := ToPascal("Ǆungla"); got != "ǅungla" {
+		t.Errorf("ToPascal = %q (%U...), want a titlecase digraph", got, []rune(got)[0])
+	}
+}

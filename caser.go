@@ -83,8 +83,11 @@ func (c *Caser) cap1(w string) string {
 		return w
 	}
 
+	// Capitalizing the first rune of a word is title casing, so use ToTitle:
+	// for a titlecase digraph (Dž, Lj, ...) ToUpper would wrongly produce the
+	// all-caps form.
 	r, size := utf8.DecodeRuneInString(w)
-	return string(unicode.ToUpper(r)) + w[size:]
+	return string(unicode.ToTitle(r)) + w[size:]
 }
 
 // ToCamel renders s as camelCase.

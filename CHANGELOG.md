@@ -4,7 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] - Unreleased
+## [2.1.0]
+
+Minor release: Unicode correctness fixes. Fully backward compatible.
+
+### Fixed
+- Combining marks (NFD-form text, e.g. a decomposed accent) glue to their base
+  letter instead of being dropped as a separator, so `Split`/`ToSnake` and the
+  other converters no longer silently lose diacritics.
+- Capitalizing the first letter of a word uses title case, so a titlecase
+  digraph (Dž, Lj, ...) is produced correctly instead of its all-caps form.
+
+## [2.0.1]
+
+- Documentation updates.
+
+## [2.0.0]
 
 Version 2 is a full redesign around a single universal tokenizer. The module
 path is now `github.com/goloop/scs/v2` and requires Go 1.24.
